@@ -7,9 +7,10 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class GetScoreRequestDto {
-    private Integer id;
-    private Long quizId;
-    private String userSelectOption;
+public class CertificateGenerateRequest {
+    private String userName;
     private String quizTitle;
+    private String score;
+    private String email;
+    private String date;
 }

@@ -8,4 +8,5 @@ public interface CertificateGenerateService {
   void generateAndSend(CertificateGenerateRequest certificateGenerateRequest) throws Exception;
   public byte[] generatePdf(CertificateGenerateRequest certificateGenerateRequest) throws Exception;
   void sendEmail(String email,byte[] pdf,String userName) throws Exception;
+
 }

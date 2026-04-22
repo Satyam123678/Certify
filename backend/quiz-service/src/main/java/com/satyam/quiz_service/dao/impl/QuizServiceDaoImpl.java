@@ -1,18 +1,19 @@
 package com.satyam.quiz_service.dao.impl;
 
 import com.satyam.quiz_service.common.QuizServiceCommonMethodUtils;
+import com.satyam.quiz_service.config.RabbitMqConfig;
 import com.satyam.quiz_service.connect.QuestionClient;
 import com.satyam.quiz_service.dao.QuizServiceDao;
-import com.satyam.quiz_service.dto.CorrectAnsResponseDto;
-import com.satyam.quiz_service.dto.GetScoreRequestDto;
-import com.satyam.quiz_service.dto.QuestionServiceDto;
-import com.satyam.quiz_service.dto.QuizServiceDtoResponse;
+import com.satyam.quiz_service.dto.*;
 import com.satyam.quiz_service.persistence.QuizServiceEntity;
 import com.satyam.quiz_service.persistence.QuizServiceRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -20,7 +21,8 @@ import java.util.Optional;
 @Service
 @Slf4j
 public class QuizServiceDaoImpl implements QuizServiceDao {
-
+    @Autowired
+    AmqpTemplate amqpTemplate;
     @Autowired
     QuestionClient questionClient;
     @Autowired
@@ -58,7 +60,7 @@ public class QuizServiceDaoImpl implements QuizServiceDao {
        if(res.isEmpty() || res.size()==0){
            throw new Exception("Answear List Empty");
        }
-       int result=0;
+       float result=0;
        for(int i=0;i<response.size();i++) {
            for (int j = 0; j < res.size(); j++) {
                if (res.get(j).getId().equals(response.get(i).getId())) {
@@ -74,7 +76,26 @@ public class QuizServiceDaoImpl implements QuizServiceDao {
            quizServiceRepository.save(qu.get());
        }
 
-       return ""+result+"/"+response.size();
+      if(result >= response.size()/2){
+          CertificateGenerateRequest certificateGenerateRequest=new CertificateGenerateRequest();
+          float percentage=(result/response.size())*100;
+          LocalDate today=LocalDate.now();
+          DateTimeFormatter dateTimeFormatter=DateTimeFormatter.ofPattern("dd/MM/yyyy");
+          String day= today.format(dateTimeFormatter);
+          certificateGenerateRequest.setUserName("Satyam");
+          certificateGenerateRequest.setEmail("satyamsinha4287@gmail.com");
+          certificateGenerateRequest.setScore(""+percentage+"%");
+          certificateGenerateRequest.setDate(day);
+          certificateGenerateRequest.setQuizTitle(response.get(0).getQuizTitle());
+          amqpTemplate.convertAndSend(
+                  RabbitMqConfig.EXCHANGE,
+                  RabbitMqConfig.KEY,
+                  certificateGenerateRequest
+          );
+           return "You passed! Certificate will be sent to your register Email Id " + "satyamsinha4287@gmail.com";
+
+      }
+        return "You failed! Score: " + result + "/" + response.size();
 
     }
 }
