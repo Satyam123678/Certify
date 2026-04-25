@@ -13,10 +13,10 @@ import java.util.List;
 
 @FeignClient("QUESTION-SERVICE")
 public interface QuestionClient {
-@GetMapping("api/questionController/fetch/all")
+@GetMapping("api/question/fetch/all")
     ResponseEntity<?> fetchAll();
-@GetMapping("api/questionController/fetch/byCatagory/{catagory}/{limit}")
+@GetMapping("api/question/fetch/byCatagory/{catagory}/{limit}")
     public List<QuestionServiceDto> findByCatagory(@PathVariable String catagory, @PathVariable Long limit);
-@PostMapping("api/questionController/correct-ans")
+@PostMapping("api/question/correct-ans")
    public List<CorrectAnsResponseDto> getCorrectAns(@RequestBody List<Integer> ids) throws Exception;
 }

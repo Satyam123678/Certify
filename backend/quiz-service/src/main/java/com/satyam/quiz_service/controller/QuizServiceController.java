@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/ape")
+@RequestMapping("/api/quiz")
 public class QuizServiceController {
     @Autowired
     QuestionClient questionClient;

@@ -15,7 +15,7 @@ import java.util.List;
 
 
 @RestController
-@RequestMapping("/api/questionController")
+@RequestMapping("/api/question")
 @RequiredArgsConstructor
 public class QuestionServiceController {
 private  final QuestionServiceDao questionServiceDao;
