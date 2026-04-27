@@ -4,6 +4,7 @@ import com.satyam.user_service.dto.AuthResponse;
 import com.satyam.user_service.dto.LoginRequest;
 import com.satyam.user_service.dto.RegisterRequest;
 import com.satyam.user_service.dto.Roles;
+import com.satyam.user_service.persistence.RefereshTokenEntity;
 import com.satyam.user_service.persistence.UserServiceEntity;
 import com.satyam.user_service.persistence.UserServiceRepository;
 import com.satyam.user_service.service.JwtService;
@@ -18,6 +19,7 @@ public class UserServiceImpl {
     private final UserServiceRepository userRepository;
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
+    private final RefreshTokenService refreshTokenService;
 
     public String  register(RegisterRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
@@ -48,7 +50,19 @@ public class UserServiceImpl {
         }
 
         String token = jwtService.generateToken(user);
-        return new AuthResponse(token, user.getEmail(),
+        RefereshTokenEntity refreshToken=refreshTokenService.createRefreshToken(request.getEmail());
+        return new AuthResponse(token, refreshToken.getToken(), user.getEmail(),
                 user.getName(), user.getRole().name());
+    }
+    public AuthResponse refreshToken(String refreshToken) throws Exception{
+        RefereshTokenEntity token=refreshTokenService.validateRefreshToken(refreshToken);
+        UserServiceEntity user=userRepository.findByEmail(token.getEmail());
+        if(user == null){
+            throw new Exception("user not found");
+        }
+        String newAccesstoken=jwtService.generateToken(user);
+        return new AuthResponse(
+                newAccesstoken,refreshToken, user.getEmail(), user.getName(), user.getRole().name()
+        );
     }
 }
