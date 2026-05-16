@@ -20,7 +20,7 @@ public class QuizServiceEntity {
     private String category;        // Category (since you mentioned it)
     private Long numOfQuestions;     // Limit of questions (since you mentioned it)
     private String score;           // Score after submission
-
+    private String userEmail;
     @ElementCollection
     @CollectionTable(name = "quiz_questions", joinColumns = @JoinColumn(name = "quiz_id"))
     @Column(name = "question_id")

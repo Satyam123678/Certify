@@ -3,6 +3,7 @@ package com.satyam.quiz_service.dao.impl;
 import com.satyam.quiz_service.common.QuizServiceCommonMethodUtils;
 import com.satyam.quiz_service.config.RabbitMqConfig;
 import com.satyam.quiz_service.connect.QuestionClient;
+import com.satyam.quiz_service.dao.JwtUtils;
 import com.satyam.quiz_service.dao.QuizServiceDao;
 import com.satyam.quiz_service.dto.*;
 import com.satyam.quiz_service.persistence.QuizServiceEntity;
@@ -29,17 +30,24 @@ public class QuizServiceDaoImpl implements QuizServiceDao {
     QuizServiceRepository quizServiceRepository;
     @Autowired
     QuizServiceCommonMethodUtils quizServiceCommonMethodUtils;
-
+    @Autowired
+    JwtUtils jwtUtils;
     @Override
-    public QuizServiceDtoResponse generateQuiz(String catagory, Long limit) {
+    public QuizServiceDtoResponse generateQuiz(String catagory, Long limit,String userEmail) {
         List<QuestionServiceDto> getQuesations = questionClient.findByCatagory(catagory, limit);
+        if(getQuesations.isEmpty()){
+            return (QuizServiceDtoResponse) Collections.emptyList();
+        }
         log.info("sddfd>>>>>"+getQuesations);
+        //String token=authHeader.substring(7);
+        //String useremail=jwtUtils.extractEmail(token);
         if (getQuesations != null) {
             QuizServiceEntity quizServiceEntity = new QuizServiceEntity();
             Long quizId=quizServiceCommonMethodUtils.generateId();
             quizServiceEntity.setQuizId(quizId);
             quizServiceEntity.setCategory(catagory);
             quizServiceEntity.setTitle(catagory);
+            quizServiceEntity.setUserEmail(userEmail);
             quizServiceEntity.setNumOfQuestions(limit);
             List<Integer> questionIds=getQuesations.stream().map(QuestionServiceDto::getId).toList();
             quizServiceEntity.setQuestionIds(questionIds);
@@ -49,7 +57,7 @@ public class QuizServiceDaoImpl implements QuizServiceDao {
 
 
         } else {
-            return null;
+            return (QuizServiceDtoResponse) Collections.emptyList();
         }
     }
 
@@ -57,9 +65,12 @@ public class QuizServiceDaoImpl implements QuizServiceDao {
     public String getScore(List<GetScoreRequestDto> response) throws Exception {
         List<Integer> getQusIds=response.stream().map(e->e.getId()).toList();
        List<CorrectAnsResponseDto> res=questionClient.getCorrectAns(getQusIds);
-       if(res.isEmpty() || res.size()==0){
-           throw new Exception("Answear List Empty");
+       if(res.isEmpty()){
+           return "Question Service is down";
        }
+//       if(res.isEmpty() || res.size()==0){
+//           throw new Exception("Answear List Empty");
+//       }
        float result=0;
        for(int i=0;i<response.size();i++) {
            for (int j = 0; j < res.size(); j++) {

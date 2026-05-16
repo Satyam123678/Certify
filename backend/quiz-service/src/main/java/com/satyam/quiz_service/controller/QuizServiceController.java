@@ -26,10 +26,18 @@ public class QuizServiceController {
         return questionClient.fetchAll();
     }
     @PostMapping("/get-question/by-catagory-and-limit")
-    public ResponseEntity<?> getQuestion(@RequestBody CreateQuizRequest createQuizRequest){
+    public ResponseEntity<?> getQuestion(@RequestBody CreateQuizRequest createQuizRequest, @RequestHeader("X-User-Email") String userEmail){
         try {
-            QuizServiceDtoResponse quizServiceDtoResponse=quizServiceDao.generateQuiz(createQuizRequest.getCatagory(), createQuizRequest.getLimit());
-            return ResponseEntity.status(HttpStatus.OK).body(quizServiceDtoResponse);
+            QuizServiceDtoResponse quizServiceDtoResponse=quizServiceDao.generateQuiz(createQuizRequest.getCatagory(), createQuizRequest.getLimit(),userEmail);
+            if(quizServiceDtoResponse.getQuestionServiceDto().isEmpty()){
+                return ResponseEntity
+                        .status(HttpStatus.SERVICE_UNAVAILABLE)
+                        .body("Question Service is currently unavailable. " +
+                                "Please try again later!");
+            }
+            else {
+                return ResponseEntity.status(HttpStatus.OK).body(quizServiceDtoResponse);
+            }
         }
         catch (Exception e){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
@@ -40,7 +48,15 @@ public class QuizServiceController {
     public ResponseEntity<?> getresult(@RequestBody List<GetScoreRequestDto> response) throws Exception{
         try {
             String result = quizServiceDao.getScore(response);
-            return ResponseEntity.status(HttpStatus.OK).body(new QuestionServiceCommonUtils<>(200,"S","result fetched succesfully",result));
+            if(result.equals("Question Service is down")){
+                return ResponseEntity
+                        .status(HttpStatus.SERVICE_UNAVAILABLE)
+                        .body("Question Service is currently unavailable. " +
+                                "Please try again later!");
+            }
+            else {
+                return ResponseEntity.status(HttpStatus.OK).body(new QuestionServiceCommonUtils<>(200, "S", "result fetched succesfully", result));
+            }
         } catch (Exception e) {
             {
                  return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new QuestionServiceCommonUtils<>(404,"F","Fail",e.getMessage()));

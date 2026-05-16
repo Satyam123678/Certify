@@ -9,6 +9,6 @@ import java.util.List;
 
 @Service
 public interface QuizServiceDao {
-    QuizServiceDtoResponse generateQuiz(String catagory,Long limit);
+    QuizServiceDtoResponse generateQuiz(String catagory,Long limit, String userEmail);
     String getScore(List<GetScoreRequestDto> response) throws Exception;
 }

@@ -11,7 +11,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 
-@FeignClient("QUESTION-SERVICE")
+@FeignClient(name = "QUESTION-SERVICE",fallback = QuestionClientFallBack.class)
+
 public interface QuestionClient {
 @GetMapping("api/question/fetch/all")
     ResponseEntity<?> fetchAll();
