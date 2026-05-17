@@ -20,10 +20,12 @@ public class ApiGateWayConfig {
     @Bean
     public RouteLocator routeLocator(RouteLocatorBuilder builder){
         return builder.routes()
-                 ///userService
+                 //userService
                 .route("user-service", r -> r
                         .path("/api/auth/**")
                         .filters(f->f
+                                .circuitBreaker(config->config.setName("userService").setFallbackUri("forward:/fallback/user")
+                                )
                                 .requestRateLimiter(config->config
                                         .setRateLimiter(rateLimitterConfig.redisRateLimiter())
                                         .setKeyResolver(rateLimitterConfig.keyResolver())
@@ -32,11 +34,12 @@ public class ApiGateWayConfig {
                         .uri("lb://user-service"))
                 //questService
                 .route("question-service",r->r.path("/api/question/**")
-                        .filters(f->f.requestRateLimiter(config -> config.setRateLimiter(rateLimitterConfig.redisRateLimiter()).setKeyResolver(rateLimitterConfig.keyResolver())))
+                        .filters(f->f.circuitBreaker(config -> config.setName("questionService").setFallbackUri("forward:/fallback/question")).requestRateLimiter(config -> config.setRateLimiter(rateLimitterConfig.redisRateLimiter()).setKeyResolver(rateLimitterConfig.keyResolver())))
                         .uri("lb://question-service"))
                //quizService
                 .route("quiz-service",r->r.path("/api/quiz/**")
-                        .filters(f->f.requestRateLimiter(config -> config.setRateLimiter(rateLimitterConfig.redisRateLimiter()).setKeyResolver(rateLimitterConfig.keyResolver())))
-                        .uri("lb://quiz-service")).build();
+                        .filters(f->f.circuitBreaker(config -> config.setName("quizService").setFallbackUri("forward:/fallback/quiz")).requestRateLimiter(config -> config.setRateLimiter(rateLimitterConfig.redisRateLimiter()).setKeyResolver(rateLimitterConfig.keyResolver())))
+                        .uri("lb://quiz-service"))
+                .build();
     }
 }

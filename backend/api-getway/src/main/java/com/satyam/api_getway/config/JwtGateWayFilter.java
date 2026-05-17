@@ -1,5 +1,9 @@
 package com.satyam.api_getway.config;
 
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.context.annotation.Configuration;
@@ -10,10 +14,15 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
+import java.nio.charset.StandardCharsets;
+import java.security.Key;
 import java.util.List;
 
 @Component
 public class JwtGateWayFilter implements GlobalFilter , Ordered {
+
+    @Value("${jwt.secret}")
+    private String SECRET_KEY;
 
     private final WebClient.Builder webClientBuilder;
 
@@ -27,7 +36,8 @@ public class JwtGateWayFilter implements GlobalFilter , Ordered {
             "/api/auth/login",
             "/api/auth/validate",
             "/api/auth/refresh",
-            "/api/auth/logout"
+            "/api/auth/logout",
+             "/fallback"
     );
 
     @Override
@@ -52,6 +62,11 @@ public class JwtGateWayFilter implements GlobalFilter , Ordered {
                 .bodyToMono(Boolean.class)
                 .flatMap(isValid->{
                     if(Boolean.TRUE.equals(isValid)){
+                        String email=extractEmail(token);
+                       ServerWebExchange mutedExchange=exchange.mutate().request(exchange.getRequest().mutate()
+                               .header("X-User-Email",email).build()
+                       ).build();
+
                         return chain.filter(exchange);
                     }
                     else{
@@ -65,8 +80,21 @@ public class JwtGateWayFilter implements GlobalFilter , Ordered {
                 });
     }
 
+    private String extractEmail(String token) {
+
+        Key key = Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8));
+        return Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .getSubject();
+    }
+
     @Override
     public int getOrder() {
         return -1;
     }
+
+
 }
