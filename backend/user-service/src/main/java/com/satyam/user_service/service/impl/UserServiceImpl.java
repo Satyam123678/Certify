@@ -12,6 +12,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.security.PublicKey;
+
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl {
@@ -20,6 +22,7 @@ public class UserServiceImpl {
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
     private final RefreshTokenService refreshTokenService;
+    private final OtpService otpService;
 
     public String  register(RegisterRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
@@ -31,17 +34,40 @@ public class UserServiceImpl {
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setRole(Roles.User);
-
+        user.setVerified(false);
         userRepository.save(user);
 
+        otpService.generateAndSendOtp(request.getEmail());
 
-        return "sucessfully registered";
+        return "OTP sent to " + request.getEmail() + ". Please verify!";
     }
+    public AuthResponse verifyOtp(String email,String otp){
+        otpService.validateOtp(email,otp);
+        UserServiceEntity user=userRepository.findByEmail(email);
+        if(user==null){
+            throw new RuntimeException("User not found");
+        }
+        user.setVerified(true);
+        userRepository.save(user);
+        String accessToken=jwtService.generateToken(user);
+        RefereshTokenEntity refereshTokenEntity=refreshTokenService.createRefreshToken(email);
+        return new AuthResponse(
+                accessToken,
+                refereshTokenEntity.getToken(),
+                user.getEmail(),
+                user.getName(),
+                user.getRole().name()
+        );
 
+
+    }
     public AuthResponse login(LoginRequest request) throws Exception {
         UserServiceEntity user = userRepository.findByEmail(request.getEmail());
         if(user ==null){
             throw new Exception("user not found");
+        }
+        if(!user.isVerified()){
+            throw new RuntimeException("Email not verified! Please verify your OTP first.");
         }
 
 

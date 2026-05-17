@@ -4,6 +4,7 @@ import com.satyam.user_service.dto.AuthResponse;
 import com.satyam.user_service.dto.LoginRequest;
 import com.satyam.user_service.dto.RegisterRequest;
 import com.satyam.user_service.service.JwtService;
+import com.satyam.user_service.service.impl.OtpService;
 import com.satyam.user_service.service.impl.RefreshTokenService;
 import com.satyam.user_service.service.impl.UserServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -18,10 +19,23 @@ public class UserServiceController {
     private final UserServiceImpl authService;
     private final JwtService jwtService;
     private final RefreshTokenService refreshTokenService;
+    private final OtpService otpService;
     @PostMapping("/register")
     public ResponseEntity<?> register(
             @RequestBody RegisterRequest request) {
         return ResponseEntity.ok(authService.register(request));
+    }
+    @PostMapping("/verify-otp")
+    public ResponseEntity<AuthResponse> verifyOtp(@RequestParam String email,@RequestParam String otp){
+        return ResponseEntity.ok(authService.verifyOtp(email,otp));
+    }
+
+    // Resend OTP if expired
+    @PostMapping("/resend-otp")
+    public ResponseEntity<String> resendOtp(
+            @RequestParam String email) {
+        otpService.generateAndSendOtp(email);
+        return ResponseEntity.ok("OTP resent to " + email);
     }
 
     @PostMapping("/login")

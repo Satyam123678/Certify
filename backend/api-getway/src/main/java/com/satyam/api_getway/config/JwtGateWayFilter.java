@@ -37,6 +37,8 @@ public class JwtGateWayFilter implements GlobalFilter , Ordered {
             "/api/auth/validate",
             "/api/auth/refresh",
             "/api/auth/logout",
+            "/api/auth/verify-otp",
+            "/api/auth/resend-otp",
              "/fallback"
     );
 
@@ -90,6 +92,8 @@ public class JwtGateWayFilter implements GlobalFilter , Ordered {
                 .getBody()
                 .getSubject();
     }
+
+
 
     @Override
     public int getOrder() {

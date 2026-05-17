@@ -22,6 +22,8 @@ public class UserServiceEntity {
     @Enumerated(EnumType.STRING)
     private Roles role;
 
+    private boolean isVerified;
+
 
 
 }
