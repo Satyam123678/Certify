@@ -1,1 +1,23 @@
-<router-outlet></router-outlet>
+<div class="min-h-screen bg-gray-950 text-white flex flex-col">
+	<header>
+		<app-navbar></app-navbar>
+	</header>
+
+	<main class="flex-1">
+		<router-outlet></router-outlet>
+	</main>
+
+	<footer class="border-t border-gray-800 bg-gray-950">
+		<div class="max-w-6xl mx-auto px-4 py-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+			<div>
+				<p class="text-sm font-semibold">Certify</p>
+				<p class="text-xs text-gray-500">Sharpen your skills, one quiz at a time.</p>
+			</div>
+			<div class="flex flex-wrap items-center gap-4 text-xs text-gray-500">
+				<span>Support: support@quizify.app</span>
+				<span>Privacy</span>
+				<span>Terms</span>
+			</div>
+		</div>
+	</footer>
+</div>

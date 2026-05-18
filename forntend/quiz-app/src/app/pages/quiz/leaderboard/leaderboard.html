@@ -1,0 +1,79 @@
+<section class="min-h-screen bg-gray-950 text-white px-4 py-10">
+	<div class="absolute inset-0 overflow-hidden pointer-events-none">
+		<div class="absolute top-0 left-1/3 w-96 h-96 bg-indigo-600 opacity-10 rounded-full blur-3xl"></div>
+		<div class="absolute bottom-0 right-1/4 w-96 h-96 bg-violet-600 opacity-10 rounded-full blur-3xl"></div>
+	</div>
+
+	<div class="relative max-w-5xl mx-auto">
+		<header class="flex flex-col md:flex-row md:items-center md:justify-between gap-6 mb-10">
+			<div>
+				<p class="text-xs uppercase tracking-[0.3em] text-gray-500">Leaderboard</p>
+				<h1 class="text-3xl font-bold tracking-tight mt-2">{{ categoryLabel }} top 5 scorers</h1>
+				<p class="text-gray-400 mt-2 max-w-xl">Certify highlights the strongest performers this week.</p>
+			</div>
+			<div class="flex items-center gap-3">
+				<a
+					routerLink="/quizzes"
+					class="px-4 py-2 rounded-xl border border-gray-800 text-xs text-gray-300 hover:border-indigo-500 transition-colors">
+					Back to categories
+				</a>
+				<span class="px-4 py-2 rounded-full border border-gray-800 text-xs text-gray-400">{{ categoryLabel }} leaderboard</span>
+				<button class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-sm font-semibold transition-colors">Refresh</button>
+			</div>
+		</header>
+
+		<div class="grid lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] gap-6">
+			<section class="bg-gray-900 border border-gray-800 rounded-2xl p-6 shadow-2xl">
+				<div class="flex items-center justify-between mb-6">
+					<div>
+						<p class="text-xs uppercase tracking-[0.25em] text-gray-500">Chart view</p>
+						<h2 class="text-lg font-semibold mt-2">Score distribution</h2>
+					</div>
+					<span class="text-xs text-gray-500">Max: {{ maxScore }}%</span>
+				</div>
+
+				<div class="grid gap-4">
+					<div *ngFor="let scorer of topScorers" class="rounded-xl border border-gray-800 bg-gray-950 px-4 py-4">
+						<div class="flex items-center justify-between text-sm">
+							<p class="font-semibold">{{ scorer.name }}</p>
+							<span class="text-gray-400">{{ scorer.score }}%</span>
+						</div>
+						<div class="mt-3 h-3 rounded-full bg-gray-800 overflow-hidden">
+							<div
+								class="h-full rounded-full bg-gradient-to-r from-indigo-500 via-purple-500 to-cyan-400"
+								[style.width.%]="scorePercent(scorer.score)"></div>
+						</div>
+						<div class="mt-2 flex items-center justify-between text-xs text-gray-500">
+							<span>Rank {{ scorer.rank }}</span>
+							<span>{{ scorer.score }} pts</span>
+						</div>
+					</div>
+				</div>
+			</section>
+
+			<section class="bg-gray-900 border border-gray-800 rounded-2xl p-6 shadow-2xl">
+				<div class="mb-6">
+					<p class="text-xs uppercase tracking-[0.25em] text-gray-500">Rankings</p>
+					<h2 class="text-lg font-semibold mt-2">Top performers</h2>
+				</div>
+
+				<div class="space-y-4">
+					<div
+						*ngFor="let scorer of topScorers; let i = index"
+						class="flex items-center justify-between gap-3 rounded-xl border border-gray-800 bg-gray-950 px-4 py-3">
+						<div class="flex items-center gap-3">
+							<span class="w-8 h-8 rounded-xl bg-indigo-600/20 text-indigo-300 flex items-center justify-center text-sm font-semibold">
+								{{ i + 1 }}
+							</span>
+							<div>
+								<p class="text-sm font-semibold">{{ scorer.name }}</p>
+								<p class="text-xs text-gray-500">Quiz mastery</p>
+							</div>
+						</div>
+						<span class="text-sm font-semibold text-emerald-300">{{ scorer.score }}%</span>
+					</div>
+				</div>
+			</section>
+		</div>
+	</div>
+</section>
