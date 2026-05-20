@@ -9,10 +9,17 @@
 		</div>
 
 		<div class="flex flex-wrap items-center gap-3 text-sm">
-			<a routerLink="/dashboard" class="px-3 py-2 rounded-lg text-gray-300 hover:text-white hover:bg-gray-900 transition-colors">Dashboard</a>
-			<a routerLink="/quizzes" class="px-3 py-2 rounded-lg text-gray-300 hover:text-white hover:bg-gray-900 transition-colors">Quizzes</a>
-			<a routerLink="/login" class="px-3 py-2 rounded-lg text-gray-300 hover:text-white hover:bg-gray-900 transition-colors">Login</a>
-			<a routerLink="/register" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold transition-colors">Get started</a>
+			<a *ngIf="isLoggedIn() && isAdmin()" routerLink="/dashboard" class="px-3 py-2 rounded-lg text-gray-300 hover:text-white hover:bg-gray-900 transition-colors">Dashboard</a>
+			<a *ngIf="isLoggedIn()" routerLink="/quizzes" class="px-3 py-2 rounded-lg text-gray-300 hover:text-white hover:bg-gray-900 transition-colors">Quizzes</a>
+
+			<ng-container *ngIf="!isLoggedIn(); else loggedInLinks">
+				<a routerLink="/login" class="px-3 py-2 rounded-lg text-gray-300 hover:text-white hover:bg-gray-900 transition-colors">Login</a>
+				<a routerLink="/register" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold transition-colors">Get started</a>
+			</ng-container>
+
+			<ng-template #loggedInLinks>
+				<a routerLink="/logout" class="px-3 py-2 rounded-lg text-gray-300 hover:text-white hover:bg-gray-900 transition-colors">Logout</a>
+			</ng-template>
 		</div>
 	</div>
 </nav>

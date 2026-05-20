@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { AuthService } from '../../../core/service/auth-service';
 
 @Component({
   selector: 'app-verify-otp',
@@ -27,7 +28,8 @@ export class VerifyOtp implements OnInit, OnDestroy {
   constructor(
     private http: HttpClient,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private authService: AuthService
   ) {}
  
   ngOnInit() {
@@ -58,29 +60,54 @@ export class VerifyOtp implements OnInit, OnDestroy {
   }
  
   // Handle OTP input — auto move to next box
-  onOtpInput(event: any, index: number) {
-    const value = event.target.value;
- 
-    // Allow only numbers
-    if (!/^\d*$/.test(value)) {
+  onOtpInput(event: Event, index: number) {
+    const inputEvent = event as InputEvent;
+    const input = event.target as HTMLInputElement;
+    const raw = input.value || '';
+
+    if (!/^\d*$/.test(raw)) {
+      input.value = '';
       this.otp[index] = '';
       return;
     }
- 
-    this.otp[index] = value.slice(-1); // keep only last digit
- 
-    // Move to next input
-    if (value && index < 5) {
-      const next = document.getElementById('otp-' + (index + 1));
-      next?.focus();
+
+    // Handle full OTP or multiple digits typed at once (autofill/paste).
+    if (raw.length > 1) {
+      const digits = raw.slice(0, 6 - index).split('');
+      digits.forEach((d, i) => {
+        this.otp[index + i] = d;
+      });
+
+      const nextIndex = Math.min(index + digits.length, 5);
+      document.getElementById('otp-' + nextIndex)?.focus();
+      return;
+    }
+
+    // Single-digit input; move focus to the next box.
+    const digit = inputEvent.data ?? raw;
+    this.otp[index] = digit;
+
+    if (digit && index < 5) {
+      document.getElementById('otp-' + (index + 1))?.focus();
     }
   }
  
   // Handle backspace — move to previous box
   onKeyDown(event: KeyboardEvent, index: number) {
-    if (event.key === 'Backspace' && !this.otp[index] && index > 0) {
-      const prev = document.getElementById('otp-' + (index - 1));
-      prev?.focus();
+    if (event.key !== 'Backspace') return;
+
+    const current = this.otp[index];
+
+    if (current) {
+      event.preventDefault();
+      this.otp[index] = '';
+      return;
+    }
+
+    if (index > 0) {
+      event.preventDefault();
+      this.otp[index - 1] = '';
+      document.getElementById('otp-' + (index - 1))?.focus();
     }
   }
  
@@ -117,13 +144,20 @@ export class VerifyOtp implements OnInit, OnDestroy {
     ).subscribe({
       next: (res) => {
         this.loading = false;
-        // Save tokens
-        localStorage.setItem('accessToken', res.accessToken);
-        localStorage.setItem('refreshToken', res.refreshToken);
+        this.authService.setAuthTokens(res.token, res.refreshToken);
         localStorage.setItem('userEmail', res.email);
         localStorage.setItem('userName', res.name);
+            if (res.role) {
+              localStorage.setItem('userRole', res.role);
+            }
         // Navigate to dashboard
-        this.router.navigate(['/dashboard']);
+        if(res.role === 'ADMIN') {
+          this.router.navigate(['/dashboard']);
+        }
+        else{
+            this.router.navigate(['/quizzes']);
+        }
+        
       },
       error: (err) => {
         this.loading = false;
@@ -156,6 +190,7 @@ export class VerifyOtp implements OnInit, OnDestroy {
         this.errorMessage = err.error?.message || 'Failed to resend OTP!';
       }
     });
+
   }
 
 }

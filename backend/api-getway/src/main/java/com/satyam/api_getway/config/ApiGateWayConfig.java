@@ -24,8 +24,8 @@ public class ApiGateWayConfig {
                 .route("user-service", r -> r
                         .path("/api/auth/**")
                         .filters(f->f
-                                .circuitBreaker(config->config.setName("userService").setFallbackUri("forward:/fallback/user")
-                                )
+//                                .circuitBreaker(config->config.setName("userService").setFallbackUri("forward:/fallback/user")
+//                                )
                                 .requestRateLimiter(config->config
                                         .setRateLimiter(rateLimitterConfig.redisRateLimiter())
                                         .setKeyResolver(rateLimitterConfig.keyResolver())

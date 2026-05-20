@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
+import { AuthService } from '../../../core/service/auth-service';
 
 
 
@@ -23,7 +24,8 @@ export class Login {
   constructor(
     private fb: FormBuilder,
     private http: HttpClient,
-    private router: Router
+    private router: Router,
+    private authService: AuthService
   ) {
     this.loginForm = this.fb.group({
       email:    ['', [Validators.required, Validators.email]],
@@ -42,18 +44,28 @@ export class Login {
  
     this.loading = true;
     this.errorMessage = '';
+    const payload={
+      email:this.email.value,
+      password:this.password.value
+    }
  
-    this.http.post<any>('http://localhost:8088/api/auth/login', this.loginForm.value)
+    this.http.post<any>('http://localhost:8088/api/auth/login', payload)
       .subscribe({
         next: (res) => {
           this.loading = false;
-          // Save tokens in localStorage
-          localStorage.setItem('accessToken', res.accessToken);
-          localStorage.setItem('refreshToken', res.refreshToken);
+          this.authService.setAuthTokens(res.token, res.refreshToken);
           localStorage.setItem('userEmail', res.email);
           localStorage.setItem('userName', res.name);
+          if (res.role) {
+            localStorage.setItem('userRole', res.role);
+          }
           // Navigate to dashboard
-          this.router.navigate(['/dashboard']);
+          if(res.role === 'ADMIN') {
+            this.router.navigate(['/dashboard']);
+          }
+          else{
+            this.router.navigate(['/quizzes']);
+          }
         },
         error: (err) => {
           this.loading = false;

@@ -34,6 +34,7 @@ export class QuizList {
   ];
 
   categorySlug(category: string): string {
+    console.log('Original category:', category);
     return category.trim().toLowerCase().replace(/\s+/g, '-');
   }
 }

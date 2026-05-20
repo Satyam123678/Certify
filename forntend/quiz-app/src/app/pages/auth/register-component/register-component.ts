@@ -41,19 +41,24 @@ export class RegisterComponent {
  
     this.loading = true;
     this.errorMessage = '';
- 
-    this.http.post('http://localhost:8088/api/auth/register', this.registerForm.value)
+    const payload={
+      name:this.name.value,
+      email:this.email.value,
+      password:this.password.value
+    }
+    this.http.post('http://localhost:8088/api/auth/register', payload, { responseType: 'text' })
       .subscribe({
         next: () => {
           this.loading = false;
           // Navigate to OTP page with email
+          console.log(this.email.value);
           this.router.navigate(['/verify-otp'], {
             queryParams: { email: this.email.value }
           });
         },
         error: (err) => {
           this.loading = false;
-          this.errorMessage = err.error?.message || 'Registration failed! Please try again.';
+          this.errorMessage = err.error?.message || err.error || 'Registration failed! Please try again.';
         }
       });
   }

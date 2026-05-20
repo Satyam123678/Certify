@@ -32,6 +32,7 @@ public class OtpService {
                 OTP_EXPIRY,
                 TimeUnit.MINUTES
         );
+        SendOtpToEmail(email,otp);
 
     }
     public boolean validateOtp(String mail,String otp){
