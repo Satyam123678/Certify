@@ -45,9 +45,9 @@ public class QuizServiceController {
 
     }
     @PostMapping("/get-result")
-    public ResponseEntity<?> getresult(@RequestBody List<GetScoreRequestDto> response) throws Exception{
+    public ResponseEntity<?> getresult(@RequestBody List<GetScoreRequestDto> response,@RequestHeader("X-User-Name") String username,@RequestHeader("X-User-Email") String userEmail) throws Exception{
         try {
-            String result = quizServiceDao.getScore(response);
+            String result = quizServiceDao.getScore(response,username,userEmail);
             if(result.equals("Question Service is down")){
                 return ResponseEntity
                         .status(HttpStatus.SERVICE_UNAVAILABLE)

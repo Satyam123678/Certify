@@ -10,5 +10,5 @@ import java.util.List;
 @Service
 public interface QuizServiceDao {
     QuizServiceDtoResponse generateQuiz(String catagory,Long limit, String userEmail);
-    String getScore(List<GetScoreRequestDto> response) throws Exception;
+    String getScore(List<GetScoreRequestDto> response,String username,String userEmail) throws Exception;
 }

@@ -52,9 +52,10 @@
       <!-- OTP Input Boxes -->
       <div class="flex gap-3 justify-center mb-6" (paste)="onPaste($event)">
         <input
-          *ngFor="let digit of otp; let i = index"
+          *ngFor="let digit of [0,1,2,3,4,5]; let i = index"
           [id]="'otp-' + i"
           type="text"
+          #otpInput
           inputmode="numeric"
           maxlength="1"
           [value]="otp[i]"

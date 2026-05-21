@@ -34,11 +34,16 @@ public class ApiGateWayConfig {
                         .uri("lb://user-service"))
                 //questService
                 .route("question-service",r->r.path("/api/question/**")
-                        .filters(f->f.circuitBreaker(config -> config.setName("questionService").setFallbackUri("forward:/fallback/question")).requestRateLimiter(config -> config.setRateLimiter(rateLimitterConfig.redisRateLimiter()).setKeyResolver(rateLimitterConfig.keyResolver())))
+                        .filters(f->
+                                f
+                                       // .circuitBreaker(config -> config.setName("questionService").setFallbackUri("forward:/fallback/question"))
+                                        .requestRateLimiter(config -> config.setRateLimiter(rateLimitterConfig.redisRateLimiter()).setKeyResolver(rateLimitterConfig.keyResolver())))
                         .uri("lb://question-service"))
                //quizService
                 .route("quiz-service",r->r.path("/api/quiz/**")
-                        .filters(f->f.circuitBreaker(config -> config.setName("quizService").setFallbackUri("forward:/fallback/quiz")).requestRateLimiter(config -> config.setRateLimiter(rateLimitterConfig.redisRateLimiter()).setKeyResolver(rateLimitterConfig.keyResolver())))
+                        .filters(f->f
+                              //  .circuitBreaker(config -> config.setName("quizService").setFallbackUri("forward:/fallback/quiz"))
+                                .requestRateLimiter(config -> config.setRateLimiter(rateLimitterConfig.redisRateLimiter()).setKeyResolver(rateLimitterConfig.keyResolver())))
                         .uri("lb://quiz-service"))
                 .build();
     }

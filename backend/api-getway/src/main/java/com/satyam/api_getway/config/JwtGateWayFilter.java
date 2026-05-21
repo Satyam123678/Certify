@@ -1,5 +1,6 @@
 package com.satyam.api_getway.config;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -65,8 +66,11 @@ public class JwtGateWayFilter implements GlobalFilter , Ordered {
                 .flatMap(isValid->{
                     if(Boolean.TRUE.equals(isValid)){
                         String email=extractEmail(token);
+                        String name=extractName(token);
                        ServerWebExchange mutedExchange=exchange.mutate().request(exchange.getRequest().mutate()
-                               .header("X-User-Email",email).build()
+                               .header("X-User-Email",email)
+                               .header("X-User-Name",name)
+                               .build()
                        ).build();
 
                         return chain.filter(exchange);
@@ -91,6 +95,17 @@ public class JwtGateWayFilter implements GlobalFilter , Ordered {
                 .parseClaimsJws(token)
                 .getBody()
                 .getSubject();
+    }
+
+    public String extractName(String token) {
+        Key key = Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8));
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+
+        return claims.get("name", String.class);
     }
 
 

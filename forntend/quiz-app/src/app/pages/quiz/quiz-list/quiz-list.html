@@ -21,6 +21,10 @@
 			</div>
 		</header>
 
+		<div *ngIf="errorMessage" class="mb-6 rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
+			{{ errorMessage }}
+		</div>
+
 		<div class="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
 			<article
 				*ngFor="let category of categories"
@@ -34,9 +38,10 @@
 				</div>
 				<div class="mt-5 flex flex-col gap-3">
 					<button
-						class="w-full px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-sm font-semibold transition-colors"
-						[routerLink]="['/quizzes', categorySlug(category.name)]">
-						Play {{ category.name }} quiz
+						class="w-full px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-sm font-semibold transition-colors disabled:opacity-60"
+						(click)="startCategoryQuiz(category.name)"
+						[disabled]="isLoadingCategory === category.name">
+						{{ isLoadingCategory === category.name ? 'Loading quiz...' : ('Play ' + category.name + ' quiz') }}
 					</button>
 					<button
 						class="w-full px-4 py-2.5 rounded-xl border border-gray-800 text-sm text-gray-300 hover:border-indigo-500 transition-colors"

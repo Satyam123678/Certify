@@ -38,11 +38,11 @@
 					class="px-5 py-2.5 rounded-xl border border-gray-800 text-sm text-gray-300 hover:border-indigo-500 transition-colors">
 					Back to categories
 				</a>
-				<a
-					routerLink="/quizzes/1"
-					class="px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-sm font-semibold transition-colors">
+				<button
+					class="px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-sm font-semibold transition-colors"
+					(click)="retryQuiz()">
 					Try again
-				</a>
+				</button>
 			</div>
 		</main>
 	</div>

@@ -62,7 +62,7 @@ public class QuizServiceDaoImpl implements QuizServiceDao {
     }
 
     @Override
-    public String getScore(List<GetScoreRequestDto> response) throws Exception {
+    public String getScore(List<GetScoreRequestDto> response,String username,String userEmail) throws Exception {
         List<Integer> getQusIds=response.stream().map(e->e.getId()).toList();
        List<CorrectAnsResponseDto> res=questionClient.getCorrectAns(getQusIds);
        if(res.isEmpty()){
@@ -93,8 +93,8 @@ public class QuizServiceDaoImpl implements QuizServiceDao {
           LocalDate today=LocalDate.now();
           DateTimeFormatter dateTimeFormatter=DateTimeFormatter.ofPattern("dd/MM/yyyy");
           String day= today.format(dateTimeFormatter);
-          certificateGenerateRequest.setUserName("Satyam");
-          certificateGenerateRequest.setEmail("satyamsinha4287@gmail.com");
+          certificateGenerateRequest.setUserName(username);
+          certificateGenerateRequest.setEmail(userEmail);
           certificateGenerateRequest.setScore(""+percentage+"%");
           certificateGenerateRequest.setDate(day);
           certificateGenerateRequest.setQuizTitle(response.get(0).getQuizTitle());
@@ -103,7 +103,7 @@ public class QuizServiceDaoImpl implements QuizServiceDao {
                   RabbitMqConfig.KEY,
                   certificateGenerateRequest
           );
-           return "You passed! Certificate will be sent to your register Email Id " + "satyamsinha4287@gmail.com";
+           return "You passed! Certificate will be sent to your register Email Id "+ result + "/" + response.size();
 
       }
         return "You failed! Score: " + result + "/" + response.size();

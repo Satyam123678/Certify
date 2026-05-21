@@ -34,8 +34,12 @@
 
             <div class="mt-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <p class="text-xs text-gray-500">Randomized questions are pulled from the database each time.</p>
-                <div class="flex flex-wrap gap-3">
-                    <button *ngIf="currentQuestionIndex > 0"
+                <div class="flex flex-wrap items-center gap-3">
+                    <div *ngIf="isSubmitting" class="flex items-center gap-2 text-xs text-gray-400">
+                        <span class="h-3 w-3 animate-spin rounded-full border-2 border-gray-500 border-t-transparent"></span>
+                        Submitting results...
+                    </div>
+                    <button *ngIf="currentQuestionIndex > 0 || isPrevShow"
                         class="px-5 py-2.5 rounded-xl border border-gray-800 text-sm text-gray-300 hover:border-indigo-500 transition-colors"
                         (click)="prevQuestion()" [disabled]="isSubmitted || currentQuestionIndex === 0">
                         Prev
@@ -48,7 +52,7 @@
                     </button>
                     <button
                         class="px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-sm font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                        [disabled]="isSubmitted || !allAnswered" (click)="submitQuiz()">
+                        [disabled]="isSubmitted || isSubmitting || !allAnswered" (click)="submitQuiz()">
                         {{ isSubmitted ? 'Submitted' : 'Submit quiz' }}
                     </button>
                 </div>
@@ -57,6 +61,11 @@
             <div *ngIf="isSubmitted"
                 class="mt-6 px-4 py-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-sm">
                 Answer submitted successfully!
+            </div>
+
+            <div *ngIf="submitError"
+                class="mt-6 px-4 py-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-200 text-sm">
+                {{ submitError }}
             </div>
         </main>
     </div>
