@@ -24,7 +24,16 @@ public class UserServiceImpl {
     private final RefreshTokenService refreshTokenService;
     private final OtpService otpService;
 
-    public String  register(RegisterRequest request) {
+    public String  register(RegisterRequest request) throws Exception {
+        if(request.getEmail()==null || request.getEmail().isEmpty()){
+            throw new Exception("Email Can not Be Null");
+        }
+        if(request.getPassword()==null || request.getPassword().isEmpty()){
+            throw new Exception("PassWord Can not Be Null");
+        }
+        if(request.getName()==null || request.getName().isEmpty()){
+            throw new Exception("Name Can not Be Null");
+        }
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new RuntimeException("Email already registered!");
         }
@@ -62,6 +71,12 @@ public class UserServiceImpl {
 
     }
     public AuthResponse login(LoginRequest request) throws Exception {
+        if(request.getEmail()==null || request.getEmail().isEmpty()){
+            throw new Exception("Email Can not Be Null");
+        }
+        if(request.getPassword()==null || request.getPassword().isEmpty()){
+            throw new Exception("PassWord Can not Be Null");
+        }
         UserServiceEntity user = userRepository.findByEmail(request.getEmail());
         if(user ==null){
             throw new Exception("user not found");
@@ -90,5 +105,28 @@ public class UserServiceImpl {
         return new AuthResponse(
                 newAccesstoken,refreshToken, user.getEmail(), user.getName(), user.getRole().name()
         );
+    }
+
+    public String updatePassword(LoginRequest request) throws Exception {
+        if(request.getEmail()==null || request.getEmail().isEmpty()){
+           throw new Exception("Email Can not Be Null");
+        }
+        if(request.getPassword()==null || request.getPassword().isEmpty()){
+            throw new Exception("PassWord Can not Be Null");
+        }
+        try{
+            if(userRepository.existsByEmail(request.getEmail())){
+                UserServiceEntity entity=userRepository.findByEmail(request.getEmail());
+                entity.setPassword(passwordEncoder.encode(request.getPassword()));
+                userRepository.save(entity);
+                return "password Succesfully Reset";
+            }
+            else{
+                return "Something went wrong please try after sometime";
+            }
+
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
     }
 }

@@ -8,6 +8,7 @@ import com.satyam.user_service.service.impl.OtpService;
 import com.satyam.user_service.service.impl.RefreshTokenService;
 import com.satyam.user_service.service.impl.UserServiceImpl;
 import lombok.RequiredArgsConstructor;
+import org.apache.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
@@ -22,7 +23,7 @@ public class UserServiceController {
     private final OtpService otpService;
     @PostMapping("/register")
     public ResponseEntity<?> register(
-            @RequestBody RegisterRequest request) {
+            @RequestBody RegisterRequest request) throws Exception {
         return ResponseEntity.ok(authService.register(request));
     }
     @PostMapping("/verify-otp")
@@ -60,4 +61,26 @@ public class UserServiceController {
         return ResponseEntity.ok("Logged out successfully!");
 
     }
+    @PostMapping("forget/password")
+    public ResponseEntity<?> updatePassword(@RequestBody LoginRequest request){
+        try{
+            String mssg= authService.updatePassword(request);
+            return ResponseEntity.ok(mssg);
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+    @PostMapping("forget/password/otp")
+    public ResponseEntity<?> getOtpForForgetPassword(@RequestParam String email){
+        try {
+            otpService.generateAndSendOtp(email);
+            return ResponseEntity.ok("OTP sent to " + email + ". Please verify!");
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
+
+    }
+
+
 }

@@ -12,6 +12,18 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/auth/login/login').then(m => m.Login)
   },
   {
+    path: 'forgot-password',
+    loadComponent: () => import('./pages/auth/forgot-password/forgot-password').then(m => m.ForgotPassword)
+  },
+  {
+    path: 'forgot-verify-otp',
+    loadComponent: () => import('./pages/auth/forgot-verify-otp/forgot-verify-otp').then(m => m.ForgotVerifyOtp)
+  },
+  {
+    path: 'reset-password',
+    loadComponent: () => import('./pages/auth/reset-password/reset-password').then(m => m.ResetPassword)
+  },
+  {
     path: '',
     redirectTo: '/login',
     pathMatch: 'full'
@@ -32,6 +44,11 @@ export const routes: Routes = [
   {
     path: 'quizzes',
     loadComponent: () => import('./pages/quiz/quiz-list/quiz-list').then(m => m.QuizList),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'quiz-history',
+    loadComponent: () => import('./pages/quiz/quiz-history/quiz-history').then(m => m.QuizHistory),
     canActivate: [authGuard]
   },
   {

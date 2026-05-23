@@ -77,7 +77,7 @@ private  final QuestionServiceDao questionServiceDao;
             return ResponseEntity.status(HttpStatus.OK).body(new QuestionServiceCommonUtils<>(200, "S", res, null));
 
         } catch (Exception e) {
-           return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new QuestionServiceCommonUtils<>(404, "S", "some thing went wrong", null));
+           return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new QuestionServiceCommonUtils<>(404, "F", "some thing went wrong", null));
         }
     }
     @PostMapping("/correct-ans")
@@ -87,6 +87,15 @@ private  final QuestionServiceDao questionServiceDao;
             return ans;
         } catch (Exception e) {
             throw new Exception("error msg:"+e.getMessage());
+        }
+    }
+    @GetMapping("get/categories")
+    public ResponseEntity<?> getAllCategory() throws Exception{
+        try{
+           List<String> category=questionServiceDao.getCategories();
+           return ResponseEntity.status(HttpStatus.OK).body(new QuestionServiceCommonUtils<>(200, "S", "Fetched!!", category));
+        } catch (Exception e) {
+            throw new Exception ("error msg:"+e.getMessage());
         }
     }
 }

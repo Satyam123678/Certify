@@ -30,6 +30,14 @@ export class AuthService {
     return this.getCookie(this.authCookieName);
   }
 
+  getRefreshToken(): string | null {
+    if (!isPlatformBrowser(this.platformId)) {
+      return null;
+    }
+
+    return this.getCookie(this.refreshCookieName);
+  }
+
   setAuthTokens(token: string, refreshToken: string): void {
     if (!isPlatformBrowser(this.platformId)) {
       return;

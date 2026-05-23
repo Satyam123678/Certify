@@ -40,7 +40,8 @@ public class JwtGateWayFilter implements GlobalFilter , Ordered {
             "/api/auth/logout",
             "/api/auth/verify-otp",
             "/api/auth/resend-otp",
-             "/fallback"
+             "/fallback",
+            "/api/auth/forget/password/otp"
     );
 
     @Override

@@ -1,0 +1,93 @@
+<section class="min-h-screen bg-gray-950 text-white px-4 py-10">
+  <div class="absolute inset-0 overflow-hidden pointer-events-none">
+    <div class="absolute top-0 left-1/3 w-96 h-96 bg-indigo-600 opacity-10 rounded-full blur-3xl"></div>
+    <div class="absolute bottom-0 right-1/4 w-96 h-96 bg-violet-600 opacity-10 rounded-full blur-3xl"></div>
+  </div>
+
+  <div class="relative max-w-5xl mx-auto">
+    <header class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+      <div>
+        <p class="text-xs uppercase tracking-[0.3em] text-gray-500">Quiz History</p>
+        <h1 class="text-3xl font-bold tracking-tight mt-2">Previous Attempts</h1>
+        <p class="text-gray-400 mt-2">Track your performance across quizzes.</p>
+      </div>
+      <div class="flex flex-wrap items-center gap-3">
+        <div class="relative">
+          <input
+            type="text"
+            placeholder="Search quiz"
+            [value]="searchTerm"
+            (input)="setSearchTerm($any($event.target).value)"
+            class="w-56 rounded-xl border border-gray-800 bg-gray-900 px-4 py-2 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-indigo-500"
+          />
+        </div>
+        <a
+          routerLink="/quizzes"
+          class="inline-flex items-center justify-center px-4 py-2 rounded-xl border border-gray-800 text-sm text-gray-300 hover:border-indigo-500 transition-colors">
+          Back to Categories
+        </a>
+      </div>
+    </header>
+
+    <div *ngIf="errorMessage" class="mb-6 rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
+      {{ errorMessage }}
+    </div>
+
+    <div *ngIf="loading" class="mb-6 rounded-xl border border-gray-800 bg-gray-900 px-4 py-3 text-sm text-gray-300">
+      Loading history...
+    </div>
+
+    <div *ngIf="!loading && !history.length" class="rounded-xl border border-gray-800 bg-gray-900 px-4 py-6 text-sm text-gray-400">
+      No attempts yet. Start a quiz to see your history.
+    </div>
+
+    <div *ngIf="!loading && history.length && !pagedHistory.length" class="rounded-xl border border-gray-800 bg-gray-900 px-4 py-6 text-sm text-gray-400">
+      No results found for "{{ searchTerm }}".
+    </div>
+
+    <div *ngIf="!loading && pagedHistory.length" class="overflow-hidden rounded-2xl border border-gray-800 bg-gray-900 shadow-2xl">
+      <table class="min-w-full text-left text-sm">
+        <thead class="bg-gray-900/60 text-gray-400">
+          <tr>
+            <th class="px-5 py-4 font-medium">Quiz</th>
+            <th class="px-5 py-4 font-medium">Score</th>
+            <th class="px-5 py-4 font-medium">Percentage</th>
+            <th class="px-5 py-4 font-medium">Status</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-800">
+          <tr *ngFor="let item of pagedHistory" class="hover:bg-gray-900/60">
+            <td class="px-5 py-4 font-semibold text-white">{{ item.quizTitle }}</td>
+            <td class="px-5 py-4 text-gray-300">{{ item.score }} / {{ item.totalQuestion }}</td>
+            <td class="px-5 py-4 text-gray-300">{{ getPercentage(item) }}</td>
+            <td class="px-5 py-4">
+              <span
+                class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold"
+                [ngClass]="getStatusClass(item.status)">
+                {{ item.status }}
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div *ngIf="!loading && history.length" class="mt-4 flex flex-wrap items-center justify-between gap-3 text-sm text-gray-400">
+      <span>Page {{ currentPage }} of {{ totalPages }}</span>
+      <div class="flex items-center gap-2">
+        <button
+          class="rounded-lg border border-gray-800 px-3 py-1.5 text-gray-300 hover:border-indigo-500 disabled:opacity-40"
+          (click)="prevPage()"
+          [disabled]="currentPage === 1">
+          Prev
+        </button>
+        <button
+          class="rounded-lg border border-gray-800 px-3 py-1.5 text-gray-300 hover:border-indigo-500 disabled:opacity-40"
+          (click)="nextPage()"
+          [disabled]="currentPage === totalPages">
+          Next
+        </button>
+      </div>
+    </div>
+  </div>
+</section>

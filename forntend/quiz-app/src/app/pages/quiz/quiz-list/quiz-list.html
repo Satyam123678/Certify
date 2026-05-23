@@ -8,13 +8,22 @@
 		<header class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-10">
 			<div>
 				<p class="text-xs uppercase tracking-[0.3em] text-gray-500">Play Quiz</p>
+				<p *ngIf="userName" class="mt-2 inline-flex items-center gap-2 rounded-full border border-indigo-500/30 bg-indigo-500/10 px-3 py-1 text-sm text-indigo-200">
+					<span class="text-indigo-300">Welcome</span>
+					<span class="font-semibold text-white">{{ userName }}</span>
+				</p>
 				<h1 class="text-3xl lg:text-4xl font-bold tracking-tight mt-2">Pick a category</h1>
 				<p class="text-gray-400 mt-2 max-w-2xl">
-					Choose a category to start. The quiz will pull random questions from the database.
+					Choose a category to start. More categories coming soon.
 				</p>
 			</div>
 			<div class="flex flex-wrap items-center gap-3">
 				<span class="px-4 py-2 rounded-full border border-gray-800 text-xs text-gray-400">5 questions · 5 min</span>
+				<a
+					routerLink="/quiz-history"
+					class="px-4 py-2.5 rounded-xl border border-gray-800 text-sm text-gray-300 hover:border-indigo-500 transition-colors">
+					View history
+				</a>
 				<button class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-sm font-semibold transition-colors">
 					Start random quiz
 				</button>
@@ -31,11 +40,6 @@
 				class="bg-gray-900 border border-gray-800 rounded-2xl p-6 shadow-2xl">
 				<div class="h-12 w-12 rounded-2xl bg-gradient-to-br" [ngClass]="category.tone"></div>
 				<h2 class="text-lg font-semibold mt-4">{{ category.name }}</h2>
-				<p class="text-sm text-gray-400 mt-2">{{ category.description }}</p>
-				<div class="flex items-center gap-4 text-xs text-gray-500 mt-4">
-					<span>{{ category.questions }} questions</span>
-					<span>Randomized</span>
-				</div>
 				<div class="mt-5 flex flex-col gap-3">
 					<button
 						class="w-full px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-sm font-semibold transition-colors disabled:opacity-60"
@@ -47,6 +51,16 @@
 						class="w-full px-4 py-2.5 rounded-xl border border-gray-800 text-sm text-gray-300 hover:border-indigo-500 transition-colors"
 						[routerLink]="['/quizzes', categorySlug(category.name), 'leaderboard']">
 						View leaderboard
+					</button>
+				</div>
+			</article>
+			<article class="bg-gray-900 border border-dashed border-gray-700 rounded-2xl p-6 shadow-2xl">
+				<div class="h-12 w-12 rounded-2xl bg-gradient-to-br from-gray-700/40 to-gray-700/0"></div>
+				<h2 class="text-lg font-semibold mt-4">More categories coming soon</h2>
+				<p class="text-sm text-gray-400 mt-2">We are adding new topics every week.</p>
+				<div class="mt-5">
+					<button class="w-full px-4 py-2.5 rounded-xl border border-gray-800 text-sm text-gray-300" disabled>
+						Stay tuned
 					</button>
 				</div>
 			</article>

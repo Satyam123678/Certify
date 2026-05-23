@@ -12,7 +12,7 @@ export class Leaderboard implements OnInit {
   categoryLabel = 'All categories';
 
   readonly topScorers = [
-    { name: 'Satyam Sharma', score: 98, rank: 1 },
+    { name: 'Satyam Sinha', score: 98, rank: 1 },
     { name: 'Aarav Singh', score: 94, rank: 2 },
     { name: 'Meera Joshi', score: 91, rank: 3 },
     { name: 'Rohan Patel', score: 88, rank: 4 },

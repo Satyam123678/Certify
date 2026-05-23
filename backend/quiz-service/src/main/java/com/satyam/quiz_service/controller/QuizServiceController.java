@@ -6,6 +6,7 @@ import com.satyam.quiz_service.dao.QuizServiceDao;
 import com.satyam.quiz_service.dto.CreateQuizRequest;
 import com.satyam.quiz_service.dto.GetScoreRequestDto;
 import com.satyam.quiz_service.dto.QuizServiceDtoResponse;
+import com.satyam.quiz_service.dto.UserQuizAttempedHistory;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -64,4 +65,15 @@ public class QuizServiceController {
         }
 
     }
+    @GetMapping("/get/user-history")
+    public ResponseEntity<?> getHistory(@RequestHeader("X-User-Email") String userEmail) throws Exception{
+        try {
+            List<UserQuizAttempedHistory> getDetails=quizServiceDao.getUserHistory(userEmail);
+            return ResponseEntity.status(HttpStatus.OK).body(new QuestionServiceCommonUtils<>(200,"S","Fetched!!",getDetails));
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
+
+    }
+
 }

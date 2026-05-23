@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 
 @Component({
@@ -9,38 +9,54 @@ import { Router, RouterModule } from '@angular/router';
   templateUrl: './quiz-list.html',
   styleUrl: './quiz-list.css',
 })
-export class QuizList {
-  readonly categories = [
-    {
-      name: 'Python',
-      description: 'Core syntax, OOP, and data structures.',
-      quizzes: 10,
-      questions: 84,
-      tone: 'from-indigo-500/20 to-indigo-500/0',
-    },
-    {
-      name: 'Java',
-      description: 'Collections, streams, and JVM fundamentals.',
-      quizzes: 8,
-      questions: 62,
-      tone: 'from-amber-500/20 to-amber-500/0',
-    },
-    {
-      name: 'SQL',
-      description: 'Queries, joins, and schema design.',
-      quizzes: 6,
-      questions: 40,
-      tone: 'from-emerald-500/20 to-emerald-500/0',
-    },
-  ];
+export class QuizList implements OnInit {
+  categories: Array<{ name: string; tone: string }> = [];
+  userName = '';
 
   isLoadingCategory: string | null = null;
   errorMessage: string | null = null;
 
+  private readonly categoriesApiUrl = 'http://localhost:8088/api/question/get/categories';
   private readonly quizApiUrl = 'http://localhost:8088/api/quiz/get-question/by-catagory-and-limit';
   private readonly questionLimit = 5;
+  private readonly tones = [
+    'from-indigo-500/20 to-indigo-500/0',
+    'from-amber-500/20 to-amber-500/0',
+    'from-emerald-500/20 to-emerald-500/0',
+    'from-sky-500/20 to-sky-500/0',
+    'from-rose-500/20 to-rose-500/0',
+    'from-teal-500/20 to-teal-500/0',
+  ];
 
-  constructor(private readonly http: HttpClient, private readonly router: Router) {}
+  constructor(
+    private readonly http: HttpClient,
+    private readonly router: Router,
+    private readonly cdr: ChangeDetectorRef
+  ) {}
+
+  ngOnInit(): void {
+    this.userName = localStorage.getItem('userName') || '';
+    this.cdr.markForCheck();
+    this.loadCategories();
+  }
+
+  private loadCategories(): void {
+    this.errorMessage = null;
+
+    this.http.get<unknown>(this.categoriesApiUrl).subscribe({
+      next: (response) => {
+        this.categories = this.normalizeCategories(response);
+        this.cdr.markForCheck();
+        if (!this.categories.length) {
+          this.errorMessage = 'No categories available right now.';
+        }
+      },
+      error: (err) => {
+        this.errorMessage = this.getErrorMessage(err, 'Failed to load categories. Please try again.');
+        this.cdr.markForCheck();
+      }
+    });
+  }
 
   categorySlug(category: string): string {
     console.log('Original category:', category);
@@ -87,6 +103,32 @@ export class QuizList {
         this.isLoadingCategory = null;
       },
     });
+  }
+
+  private normalizeCategories(response: unknown): Array<{ name: string; tone: string }> {
+    const data = (response as { data?: unknown })?.data;
+    const categories = (response as { categories?: unknown })?.categories;
+    const raw = Array.isArray(data)
+      ? data
+      : Array.isArray(categories)
+        ? categories
+        : Array.isArray(response)
+          ? response
+          : [];
+
+    return raw
+      .map((item, index) => {
+        const name = String(item ?? '').trim();
+        if (!name) {
+          return null;
+        }
+
+        return {
+          name,
+          tone: this.tones[index % this.tones.length],
+        };
+      })
+      .filter((item): item is { name: string; tone: string } => item !== null);
   }
 
   private normalizeQuestions(response: unknown): Array<{ id?: string; text: string; options: string[] }> {
@@ -153,5 +195,22 @@ export class QuizList {
       .filter((option): option is unknown => option !== undefined && option !== null)
       .map((option) => String(option))
       .filter((option) => option.trim().length > 0);
+  }
+
+  private getErrorMessage(err: any, fallback: string): string {
+    if (!err) {
+      return fallback;
+    }
+
+    if (typeof err.error === 'string') {
+      try {
+        const parsed = JSON.parse(err.error);
+        return parsed?.message || fallback;
+      } catch {
+        return err.error || fallback;
+      }
+    }
+
+    return err.error?.message || err.message || fallback;
   }
 }

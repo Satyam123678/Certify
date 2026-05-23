@@ -69,9 +69,45 @@ export class Login {
         },
         error: (err) => {
           this.loading = false;
-          this.errorMessage = err.error?.message || 'Login failed! Please try again.';
+          this.handleError(err, 'Login failed! Please try again.');
         }
       });
+  }
+
+  private handleError(err: any, fallback: string): void {
+    if (!err) {
+      this.errorMessage = fallback;
+      return;
+    }
+
+    if (err.error instanceof Blob) {
+      err.error.text().then((text: string) => {
+        this.errorMessage = this.parseErrorText(text, fallback);
+      }).catch(() => {
+        this.errorMessage = fallback;
+      });
+      return;
+    }
+
+    if (typeof err.error === 'string') {
+      this.errorMessage = this.parseErrorText(err.error, fallback);
+      return;
+    }
+
+    this.errorMessage = err.error?.message || err.message || fallback;
+  }
+
+  private parseErrorText(text: string, fallback: string): string {
+    if (!text) {
+      return fallback;
+    }
+
+    try {
+      const parsed = JSON.parse(text);
+      return parsed?.message || fallback;
+    } catch {
+      return text || fallback;
+    }
   }
    
 }

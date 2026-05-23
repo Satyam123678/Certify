@@ -108,5 +108,19 @@ private final QuestionServiceRepository questionServiceRepository;
           throw new Exception("eror msg:"+e.getMessage());
       }
     }
+
+    @Override
+    public List<String> getCategories() throws Exception {
+        try {
+            List<String> categories = questionServiceRepository.getCategories();
+            if (categories.isEmpty() || categories == null) {
+                throw new Exception("Category is returin null");
+            }
+            return categories;
+        }
+        catch (Exception e){
+            throw new Exception("error mssg:"+e.getMessage());
+        }
+    }
 }
 

@@ -1,4 +1,5 @@
 import { CommonModule } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/service/auth-service';
@@ -13,11 +14,30 @@ import { AuthService } from '../../../core/service/auth-service';
 export class Logout implements OnInit {
   constructor(
     private readonly authService: AuthService,
+    private readonly http: HttpClient,
     private readonly router: Router
   ) {}
 
   ngOnInit(): void {
-    this.authService.clearAuthData();
-    this.router.navigate(['/login']);
+    const refreshToken = this.authService.getRefreshToken();
+
+    if (!refreshToken) {
+      this.authService.clearAuthData();
+      this.router.navigate(['/login']);
+      return;
+    }
+
+    const url = `http://localhost:8088/api/auth/logout?refreshToken=${encodeURIComponent(refreshToken)}`;
+
+    this.http.post(url, {}, { responseType: 'text' }).subscribe({
+      next: () => {
+        this.authService.clearAuthData();
+        this.router.navigate(['/login']);
+      },
+      error: () => {
+        this.authService.clearAuthData();
+        this.router.navigate(['/login']);
+      }
+    });
   }
 }

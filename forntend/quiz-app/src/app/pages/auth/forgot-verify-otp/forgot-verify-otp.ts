@@ -3,16 +3,15 @@ import { HttpClient } from '@angular/common/http';
 import { Component, ElementRef, OnDestroy, OnInit, QueryList, ViewChildren } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { AuthService } from '../../../core/service/auth-service';
 
 @Component({
-  selector: 'app-verify-otp',
+  selector: 'app-forgot-verify-otp',
   standalone: true,
   imports: [CommonModule, FormsModule, RouterModule],
-  templateUrl: './verify-otp.html',
-  styleUrl: './verify-otp.css',
+  templateUrl: './forgot-verify-otp.html',
+  styleUrl: './forgot-verify-otp.css',
 })
-export class VerifyOtp implements OnInit, OnDestroy {
+export class ForgotVerifyOtp implements OnInit, OnDestroy {
   email = '';
   otp: string[] = ['', '', '', '', '', ''];
   loading = false;
@@ -21,7 +20,6 @@ export class VerifyOtp implements OnInit, OnDestroy {
   successMessage = '';
   @ViewChildren('otpInput') inputs!: QueryList<ElementRef<HTMLInputElement>>;
 
-  // Countdown timer for resend
   countdown = 300;
   canResend = false;
   private timer: any;
@@ -29,16 +27,14 @@ export class VerifyOtp implements OnInit, OnDestroy {
   constructor(
     private http: HttpClient,
     private router: Router,
-    private route: ActivatedRoute,
-    private authService: AuthService
+    private route: ActivatedRoute
   ) { }
 
   ngOnInit() {
-    // Get email from query params
     this.route.queryParams.subscribe(params => {
       this.email = params['email'] || '';
       if (!this.email) {
-        this.router.navigate(['/register']);
+        this.router.navigate(['/forgot-password']);
       }
     });
     this.startCountdown();
@@ -60,28 +56,23 @@ export class VerifyOtp implements OnInit, OnDestroy {
     }, 1000);
   }
 
-  // Handle OTP input — auto move to next box
   onOtpInput(event: Event, index: number) {
-
     const input = event.target as HTMLInputElement;
     const digit = input.value.replace(/\D/g, '').slice(-1);
     this.otp[index] = digit;
-    input.value = digit; // enforce single digit
+    input.value = digit;
     if (digit && index < 5) {
       this.inputs.toArray()[index + 1].nativeElement.focus();
     }
   }
 
-  // Handle backspace — move to previous box
   onKeyDown(event: KeyboardEvent, index: number) {
     const input = event.target as HTMLInputElement;
     if (event.key === 'Backspace') {
       if (input.value) {
-       
         this.otp[index] = '';
         input.value = '';
       } else if (index > 0) {
-       
         this.otp[index - 1] = '';
         const prev = this.inputs.toArray()[index - 1].nativeElement;
         prev.value = '';
@@ -90,7 +81,6 @@ export class VerifyOtp implements OnInit, OnDestroy {
     }
   }
 
-  // Handle paste — fill all boxes
   onPaste(event: ClipboardEvent) {
     event.preventDefault();
     const pasted = event.clipboardData?.getData('text') || '';
@@ -98,13 +88,8 @@ export class VerifyOtp implements OnInit, OnDestroy {
     digits.split('').forEach((d, i) => {
       this.otp[i] = d;
     });
-    // Focus last filled box
     const lastIndex = Math.min(digits.length, 5);
     document.getElementById('otp-' + lastIndex)?.focus();
-  }
-
-  get otpValue() {
-    return this.otp.join('');
   }
 
   get isOtpComplete() {
@@ -118,35 +103,32 @@ export class VerifyOtp implements OnInit, OnDestroy {
     this.errorMessage = '';
     const otp = this.otp.join('');
 
-    this.http.post<any>(
+    this.http.post(
       `http://localhost:8088/api/auth/verify-otp?email=${this.email}&otp=${otp}`,
-      {}
+      {},
+      { observe: 'response' }
     ).subscribe({
       next: (res) => {
         this.loading = false;
-        this.authService.setAuthTokens(res.token, res.refreshToken);
-        localStorage.setItem('userEmail', res.email);
-        localStorage.setItem('userName', res.name);
-        if (res.role) {
-          localStorage.setItem('userRole', res.role);
-        }
-        // Navigate to dashboard
-        if (res.role === 'ADMIN') {
-          this.router.navigate(['/dashboard']);
-        }
-        else {
-          this.router.navigate(['/quizzes']);
+        const authHeader = res.headers.get('Authorization') || res.headers.get('authorization');
+        const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : authHeader;
+        const body = res.body as { token?: string } | null;
+        const resetToken = token || body?.token || '';
+
+        if (resetToken) {
+          sessionStorage.setItem('reset_token', resetToken);
         }
 
+        this.router.navigate(['/reset-password'], {
+          queryParams: { email: this.email },
+        });
       },
       error: (err) => {
         this.loading = false;
         this.errorMessage = this.getErrorMessage(err, 'Invalid OTP! Please try again.');
-
         this.otp = ['', '', '', '', '', ''];
         this.inputs.toArray().forEach(i => i.nativeElement.value = '');
         this.inputs.toArray()[0].nativeElement.focus();
-
       }
     });
   }
@@ -158,7 +140,7 @@ export class VerifyOtp implements OnInit, OnDestroy {
     this.errorMessage = '';
 
     this.http.post(
-      `http://localhost:8088/api/auth/resend-otp?email=${this.email}`,
+      `http://localhost:8088/api/auth/resend-forgot-otp?email=${this.email}`,
       {}
     ).subscribe({
       next: () => {
@@ -169,10 +151,9 @@ export class VerifyOtp implements OnInit, OnDestroy {
       },
       error: (err) => {
         this.resendLoading = false;
-        this.errorMessage = this.getErrorMessage(err, 'Failed to resend OTP!');
+        this.errorMessage = err.error?.message || 'Failed to resend OTP!';
       }
     });
-
   }
 
   private getErrorMessage(err: any, fallback: string): string {
@@ -191,5 +172,4 @@ export class VerifyOtp implements OnInit, OnDestroy {
 
     return err.error?.message || err.message || fallback;
   }
-
 }

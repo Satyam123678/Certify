@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -84,12 +85,19 @@ public class QuizServiceDaoImpl implements QuizServiceDao {
        if(quizServiceRepository.existsById(response.get(0).getQuizId())) {
            Optional<QuizServiceEntity> qu = quizServiceRepository.findById(response.get(0).getQuizId());
            qu.get().setScore("" + result);
+           if(result >= response.size()/2.0){
+               qu.get().setStatus("Pass");
+           }
+           else{
+               qu.get().setStatus("Fail");
+           }
            quizServiceRepository.save(qu.get());
        }
 
-      if(result >= response.size()/2){
+      if(result >= response.size()/2.0){
           CertificateGenerateRequest certificateGenerateRequest=new CertificateGenerateRequest();
           float percentage=(result/response.size())*100;
+          percentage = Math.round(percentage * 100.0f) / 100.0f;
           LocalDate today=LocalDate.now();
           DateTimeFormatter dateTimeFormatter=DateTimeFormatter.ofPattern("dd/MM/yyyy");
           String day= today.format(dateTimeFormatter);
@@ -108,5 +116,22 @@ public class QuizServiceDaoImpl implements QuizServiceDao {
       }
         return "You failed! Score: " + result + "/" + response.size();
 
+    }
+
+    @Override
+    public List<UserQuizAttempedHistory> getUserHistory(String email) throws Exception {
+        try{
+            List<UserQuizAttempedHistory> getDetails=new ArrayList<>();
+            List<QuizServiceEntity> getUserDetails=quizServiceRepository.findAllByUserEmail(email);
+            if(!getUserDetails.isEmpty()){
+                getDetails=getUserDetails.stream().map(e->new UserQuizAttempedHistory(e.getQuizId().toString(),e.getNumOfQuestions().toString(),e.getScore(),e.getStatus(),e.getTitle())).toList();
+                return getDetails;
+            }
+            else{
+                return getDetails;
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
     }
 }

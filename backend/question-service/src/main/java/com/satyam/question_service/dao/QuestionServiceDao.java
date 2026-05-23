@@ -17,4 +17,5 @@ public interface QuestionServiceDao {
     String createQuestoin(QuestionServiceEntity questionServiceEntity) throws Exception;
     String deleteQuestionById(Integer id) throws Exception;
     List<CorrectAnsResponseDto> getAns(List<Integer> ids) throws Exception;
+    List<String> getCategories() throws Exception;
  }

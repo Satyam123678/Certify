@@ -58,8 +58,25 @@ export class RegisterComponent {
         },
         error: (err) => {
           this.loading = false;
-          this.errorMessage = err.error?.message || err.error || 'Registration failed! Please try again.';
+          this.errorMessage = this.getErrorMessage(err, 'Registration failed! Please try again.');
         }
       });
+  }
+
+  private getErrorMessage(err: any, fallback: string): string {
+    if (!err) {
+      return fallback;
+    }
+
+    if (typeof err.error === 'string') {
+      try {
+        const parsed = JSON.parse(err.error);
+        return parsed?.message || fallback;
+      } catch {
+        return err.error || fallback;
+      }
+    }
+
+    return err.error?.message || err.message || fallback;
   }
 }
