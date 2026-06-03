@@ -37,7 +37,7 @@
 		<div class="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
 			<article
 				*ngFor="let category of categories"
-				class="bg-gray-900 border border-gray-800 rounded-2xl p-6 shadow-2xl">
+				class="surface-card p-6">
 				<div class="h-12 w-12 rounded-2xl bg-gradient-to-br" [ngClass]="category.tone"></div>
 				<h2 class="text-lg font-semibold mt-4">{{ category.name }}</h2>
 				<div class="mt-5 flex flex-col gap-3">
@@ -54,7 +54,7 @@
 					</button>
 				</div>
 			</article>
-			<article class="bg-gray-900 border border-dashed border-gray-700 rounded-2xl p-6 shadow-2xl">
+			<article class="surface-card border-dashed border-gray-700 p-6">
 				<div class="h-12 w-12 rounded-2xl bg-gradient-to-br from-gray-700/40 to-gray-700/0"></div>
 				<h2 class="text-lg font-semibold mt-4">More categories coming soon</h2>
 				<p class="text-sm text-gray-400 mt-2">We are adding new topics every week.</p>
@@ -66,7 +66,7 @@
 			</article>
 		</div>
 
-		<section class="mt-10 bg-gray-900 border border-gray-800 rounded-2xl p-6 shadow-2xl">
+		<section class="mt-10 surface-card p-6">
 			<div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
 				<div>
 					<p class="text-xs uppercase tracking-[0.25em] text-gray-500">How it works</p>

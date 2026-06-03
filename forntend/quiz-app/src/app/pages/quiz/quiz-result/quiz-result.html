@@ -1,4 +1,4 @@
-<section class="min-h-screen bg-gray-950 text-white px-4 py-10">
+<section class="min-h-screen bg-gray-950 text-white px-4 py-10 page-enter">
 	<div class="absolute inset-0 overflow-hidden pointer-events-none">
 		<div class="absolute top-0 left-1/3 w-96 h-96 bg-indigo-600 opacity-10 rounded-full blur-3xl"></div>
 		<div class="absolute bottom-0 right-1/4 w-96 h-96 bg-violet-600 opacity-10 rounded-full blur-3xl"></div>
@@ -11,12 +11,21 @@
 			<p class="text-gray-400 mt-2">See if you passed and what happens next.</p>
 		</header>
 
-		<main class="bg-gray-900 border border-gray-800 rounded-2xl p-8 shadow-2xl text-center">
+		<main class="bg-gray-900 border border-gray-800 rounded-2xl p-8 shadow-2xl text-center relative overflow-hidden">
+			<div *ngIf="showConfetti" class="confetti" aria-hidden="true">
+				<span
+					*ngFor="let piece of confettiPieces; let i = index"
+					class="confetti-piece"
+					[style.left.%]="confettiLeft[i]"
+					[style.background]="confettiColors[i]"
+					[style.animationDelay]="confettiDelay[i] + 's'"
+				></span>
+			</div>
 			<div class="flex flex-col items-center gap-3">
 				<div
 					class="w-28 h-28 rounded-full border-4 flex items-center justify-center text-3xl font-semibold"
 					[ngClass]="passed ? 'border-emerald-500 text-emerald-300' : 'border-rose-500 text-rose-300'">
-					{{ percent }}%
+					{{ displayPercent }}%
 				</div>
 				<p class="text-sm text-gray-400">{{ score }} / {{ total }} correct</p>
 			</div>

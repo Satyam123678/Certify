@@ -1,0 +1,32 @@
+.confetti {
+	position: absolute;
+	inset: 0;
+	pointer-events: none;
+	overflow: hidden;
+ }
+
+.confetti-piece {
+	position: absolute;
+	top: -12px;
+	width: 8px;
+	height: 14px;
+	border-radius: 2px;
+	animation: confetti-fall 1.6s ease-in forwards;
+	opacity: 0.9;
+ }
+
+.confetti-piece:nth-child(odd) {
+	width: 6px;
+	height: 12px;
+	animation-duration: 1.4s;
+ }
+
+@keyframes confetti-fall {
+	0% {
+		transform: translateY(0) rotate(0deg);
+	}
+	100% {
+		transform: translateY(320px) rotate(160deg);
+		opacity: 0;
+	}
+ }

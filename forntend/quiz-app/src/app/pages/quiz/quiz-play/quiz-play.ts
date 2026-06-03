@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { ToastService } from '../../../shared/components/toast/toast';
 
 @Component({
   selector: 'app-quiz-play',
@@ -60,7 +61,8 @@ export class QuizPlay implements OnInit, OnDestroy {
   constructor(
     private readonly http: HttpClient,
     private readonly router: Router,
-    private readonly route: ActivatedRoute
+    private readonly route: ActivatedRoute,
+    private readonly toastService: ToastService
   ) {}
 
   ngOnInit(): void {
@@ -129,6 +131,8 @@ export class QuizPlay implements OnInit, OnDestroy {
       next: (response) => {
         const { score, total } = this.extractResultStats(response, payload.length || this.totalQuestions);
 
+        this.toastService.success('Quiz submitted successfully.');
+
         void this.router.navigate(['result'], {
           relativeTo: this.route,
           state: {
@@ -141,6 +145,7 @@ export class QuizPlay implements OnInit, OnDestroy {
       },
       error: () => {
         this.submitError = 'Failed to submit quiz results. Please try again.';
+        this.toastService.error(this.submitError);
         this.isSubmitted = false;
       },
       complete: () => {

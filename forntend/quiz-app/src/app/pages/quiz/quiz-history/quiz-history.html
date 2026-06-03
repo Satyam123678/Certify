@@ -33,19 +33,19 @@
       {{ errorMessage }}
     </div>
 
-    <div *ngIf="loading" class="mb-6 rounded-xl border border-gray-800 bg-gray-900 px-4 py-3 text-sm text-gray-300">
+    <div *ngIf="loading" class="mb-6 surface-muted px-4 py-3 text-sm text-gray-300">
       Loading history...
     </div>
 
-    <div *ngIf="!loading && !history.length" class="rounded-xl border border-gray-800 bg-gray-900 px-4 py-6 text-sm text-gray-400">
+    <div *ngIf="!loading && !history.length" class="surface-muted px-4 py-6 text-sm text-gray-400">
       No attempts yet. Start a quiz to see your history.
     </div>
 
-    <div *ngIf="!loading && history.length && !pagedHistory.length" class="rounded-xl border border-gray-800 bg-gray-900 px-4 py-6 text-sm text-gray-400">
+    <div *ngIf="!loading && history.length && !pagedHistory.length" class="surface-muted px-4 py-6 text-sm text-gray-400">
       No results found for "{{ searchTerm }}".
     </div>
 
-    <div *ngIf="!loading && pagedHistory.length" class="overflow-hidden rounded-2xl border border-gray-800 bg-gray-900 shadow-2xl">
+    <div *ngIf="!loading && pagedHistory.length" class="overflow-hidden surface-card">
       <table class="min-w-full text-left text-sm">
         <thead class="bg-gray-900/60 text-gray-400">
           <tr>

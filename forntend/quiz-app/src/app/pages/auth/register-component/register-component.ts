@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
+import { ToastService } from '../../../shared/components/toast/toast';
 
 @Component({
   selector: 'app-register-component',
@@ -20,7 +21,8 @@ export class RegisterComponent {
   constructor(
     private fb: FormBuilder,
     private http: HttpClient,
-    private router: Router
+    private router: Router,
+    private toastService: ToastService
   ) {
     this.registerForm = this.fb.group({
       name:     ['', [Validators.required, Validators.minLength(2)]],
@@ -50,6 +52,7 @@ export class RegisterComponent {
       .subscribe({
         next: () => {
           this.loading = false;
+          this.toastService.success('Registration successful. Check your email for the OTP.');
           // Navigate to OTP page with email
           console.log(this.email.value);
           this.router.navigate(['/verify-otp'], {
@@ -59,6 +62,7 @@ export class RegisterComponent {
         error: (err) => {
           this.loading = false;
           this.errorMessage = this.getErrorMessage(err, 'Registration failed! Please try again.');
+          this.toastService.error(this.errorMessage);
         }
       });
   }

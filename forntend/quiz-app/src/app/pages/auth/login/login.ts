@@ -4,6 +4,7 @@ import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/service/auth-service';
+import { ToastService } from '../../../shared/components/toast/toast';
 
 
 
@@ -25,7 +26,8 @@ export class Login {
     private fb: FormBuilder,
     private http: HttpClient,
     private router: Router,
-    private authService: AuthService
+    private authService: AuthService,
+    private toastService: ToastService
   ) {
     this.loginForm = this.fb.group({
       email:    ['', [Validators.required, Validators.email]],
@@ -59,6 +61,7 @@ export class Login {
           if (res.role) {
             localStorage.setItem('userRole', res.role);
           }
+          this.toastService.success(`Welcome back, ${res.name || 'learner'}!`);
           // Navigate to dashboard
           if(res.role === 'ADMIN') {
             this.router.navigate(['/dashboard']);
@@ -77,24 +80,29 @@ export class Login {
   private handleError(err: any, fallback: string): void {
     if (!err) {
       this.errorMessage = fallback;
+      this.toastService.error(this.errorMessage);
       return;
     }
 
     if (err.error instanceof Blob) {
       err.error.text().then((text: string) => {
         this.errorMessage = this.parseErrorText(text, fallback);
+        this.toastService.error(this.errorMessage);
       }).catch(() => {
         this.errorMessage = fallback;
+        this.toastService.error(this.errorMessage);
       });
       return;
     }
 
     if (typeof err.error === 'string') {
       this.errorMessage = this.parseErrorText(err.error, fallback);
+      this.toastService.error(this.errorMessage);
       return;
     }
 
     this.errorMessage = err.error?.message || err.message || fallback;
+    this.toastService.error(this.errorMessage);
   }
 
   private parseErrorText(text: string, fallback: string): string {
