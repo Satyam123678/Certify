@@ -1,0 +1,148 @@
+version: '3.8'
+
+services:
+
+  # Infrastructure
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    environment:
+      POSTGRES_DB: quizProjectDb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 713143
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - certify-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - certify-network
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - certify-network
+
+  # Eureka Server
+  eureka-server:
+    build: ./backend/service-registary
+    container_name: eureka-server
+    ports:
+      - "8761:8761"
+    networks:
+      - certify-network
+    depends_on:
+      - postgres
+      - redis
+      - rabbitmq
+
+  # User Service
+  user-service:
+    build: ./backend/user-service
+    container_name: user-service
+    ports:
+      - "8086:8086"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/quizProjectDb
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: 713143
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_RABBITMQ_HOST: rabbitmq
+    depends_on:
+      - postgres
+      - redis
+      - rabbitmq
+      - eureka-server
+    networks:
+      - certify-network
+
+  # Question Service
+  question-service:
+    build: ./backend/question-service
+    container_name: question-service
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/quizProjectDb
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: 713143
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+    depends_on:
+      - postgres
+      - eureka-server
+    networks:
+      - certify-network
+
+  # Quiz Service
+  quiz-service:
+    build: ./backend/quiz-service
+    container_name: quiz-service
+    ports:
+      - "8082:8082"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/quizProjectDb
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: 713143
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+    depends_on:
+      - postgres
+      - eureka-server
+      - question-service
+    networks:
+      - certify-network
+
+  # Certificate Service
+  certificate-service:
+    build: ./backend/certificate-service
+    container_name: certificate-service
+    ports:
+      - "8083:8083"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/quizProjectDb
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: 713143
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      SPRING_RABBITMQ_HOST: rabbitmq
+    depends_on:
+      - postgres
+      - eureka-server
+      - rabbitmq
+    networks:
+      - certify-network
+
+  # API Gateway
+  api-gateway:
+    build: ./backend/api-getway
+    container_name: api-gateway
+    ports:
+      - "8088:8088"
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      SPRING_DATA_REDIS_HOST: redis
+    depends_on:
+      - eureka-server
+      - user-service
+      - question-service
+      - quiz-service
+      - certificate-service
+    networks:
+      - certify-network
+
+volumes:
+  postgres_data:
+
+networks:
+  certify-network:
+    driver: bridge

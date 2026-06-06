@@ -6,7 +6,6 @@ import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
-@NoArgsConstructor
 public class QuestionServiceCommonUtils<T> {
     private int statusCode;
     private String status;
