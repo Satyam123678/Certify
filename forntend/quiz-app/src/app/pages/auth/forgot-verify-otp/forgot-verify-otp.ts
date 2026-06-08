@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Component, ElementRef, OnDestroy, OnInit, QueryList, ViewChildren } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { API_BASE } from '../../../config';
 
 @Component({
   selector: 'app-forgot-verify-otp',
@@ -104,7 +105,7 @@ export class ForgotVerifyOtp implements OnInit, OnDestroy {
     const otp = this.otp.join('');
 
     this.http.post(
-      `http://localhost:8088/api/auth/verify-otp?email=${this.email}&otp=${otp}`,
+      `${API_BASE}/api/auth/verify-otp?email=${this.email}&otp=${otp}`,
       {},
       { observe: 'response' }
     ).subscribe({
@@ -140,7 +141,7 @@ export class ForgotVerifyOtp implements OnInit, OnDestroy {
     this.errorMessage = '';
 
     this.http.post(
-      `http://localhost:8088/api/auth/resend-forgot-otp?email=${this.email}`,
+      `${API_BASE}/api/auth/resend-forgot-otp?email=${this.email}`,
       {}
     ).subscribe({
       next: () => {

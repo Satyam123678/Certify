@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { API_BASE } from '../../../config';
 import { ToastService } from '../../../shared/components/toast/toast';
 
 @Component({
@@ -47,8 +48,8 @@ export class QuizPlay implements OnInit, OnDestroy {
   submitError: string | null = null;
   isSubmitting = false;
 
-  private readonly resultApiUrl = 'http://localhost:8088/api/quiz/get-result';
-  private readonly quizApiUrl = 'http://localhost:8088/api/quiz/get-question/by-catagory-and-limit';
+  private readonly resultApiUrl = `${API_BASE}/api/quiz/get-result`;
+  private readonly quizApiUrl = `${API_BASE}/api/quiz/get-question/by-catagory-and-limit`;
   private readonly questionLimit = 5;
 
   remainingSeconds = this.timeLimitSeconds;

@@ -21,10 +21,10 @@ public class QuestionServiceController {
 private  final QuestionServiceDao questionServiceDao;
 
 
-    @GetMapping("/fetch/all")
-    public ResponseEntity<?> fetchAll(){
+    @GetMapping("/fetch/all/{category}")
+    public ResponseEntity<?> fetchAll(@PathVariable String category){
         try{
-            List<QuestionServiceEntity> result=questionServiceDao.getAllQuestion();
+            List<QuestionServiceEntity> result=questionServiceDao.getAllQuestion(category);
 
             return ResponseEntity.status(HttpStatus.OK).body(new QuestionServiceCommonUtils<>(200,"S","Data SucessFully Fetch",result));
         }
@@ -44,13 +44,13 @@ private  final QuestionServiceDao questionServiceDao;
         }
     }
     @PostMapping("/create-new-question")
-    public ResponseEntity<?> createNewQuestion(@RequestBody QuestionServiceEntity questionServiceEntity){
+    public ResponseEntity<?> createNewQuestion(@RequestBody List<QuestionServiceEntity> questionServiceEntity){
         try{
             if(questionServiceEntity==null){
                 throw new Exception("questionServiceEntity can not be null");
             }
            String res= questionServiceDao.createQuestoin(questionServiceEntity);
-            if(res.equals("Created SussecFully")) {
+            if(res.equals("Processed Successfully")) {
                 return ResponseEntity.status(HttpStatus.CREATED).body(new QuestionServiceCommonUtils<>(201, "S", res, null));
             }
             if(res.equals("Updated Successfully")) {

@@ -4,6 +4,7 @@ import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { ToastService } from '../../../shared/components/toast/toast';
+import { API_BASE } from '../../../config';
 
 @Component({
   selector: 'app-register-component',
@@ -48,7 +49,7 @@ export class RegisterComponent {
       email:this.email.value,
       password:this.password.value
     }
-    this.http.post('http://localhost:8088/api/auth/register', payload, { responseType: 'text' })
+    this.http.post(`${API_BASE}/api/auth/register`, payload, { responseType: 'text' })
       .subscribe({
         next: () => {
           this.loading = false;

@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/service/auth-service';
+import { API_BASE } from '../../../config';
 
 @Component({
   selector: 'app-logout',
@@ -27,7 +28,7 @@ export class Logout implements OnInit {
       return;
     }
 
-    const url = `http://localhost:8088/api/auth/logout?refreshToken=${encodeURIComponent(refreshToken)}`;
+    const url = `${API_BASE}/api/auth/logout?refreshToken=${encodeURIComponent(refreshToken)}`;
 
     this.http.post(url, {}, { responseType: 'text' }).subscribe({
       next: () => {

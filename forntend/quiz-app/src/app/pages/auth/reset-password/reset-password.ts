@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Component } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { API_BASE } from '../../../config';
 
 @Component({
   selector: 'app-reset-password',
@@ -71,7 +72,7 @@ export class ResetPassword {
     }
 
     this.http.post(
-      `http://localhost:8088/api/auth/forget/password`,
+      `${API_BASE}/api/auth/forget/password`,
       payload,
       {
         responseType: 'text',

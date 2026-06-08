@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { RouterModule } from '@angular/router';
+import { API_BASE } from '../../../config';
 
 interface QuizHistoryItem {
   quizTitle: string;
@@ -25,7 +26,7 @@ export class QuizHistory implements OnInit {
   currentPage = 1;
   pageSize = 6;
 
-  private readonly historyApiUrl = 'http://localhost:8088/api/quiz/get/user-history';
+  private readonly historyApiUrl = `${API_BASE}/api/quiz/get/user-history`;
 
   constructor(
     private readonly http: HttpClient,

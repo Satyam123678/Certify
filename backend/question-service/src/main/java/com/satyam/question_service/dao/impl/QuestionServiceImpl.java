@@ -18,8 +18,8 @@ import java.util.List;
 public class QuestionServiceImpl implements QuestionServiceDao {
 private final QuestionServiceRepository questionServiceRepository;
     @Override
-    public List<QuestionServiceEntity> getAllQuestion() throws Exception {
-        List<QuestionServiceEntity> result=questionServiceRepository.findAll();
+    public List<QuestionServiceEntity> getAllQuestion(String category) throws Exception {
+        List<QuestionServiceEntity> result=questionServiceRepository.findByCategory(category);
         if(result.isEmpty() || result == null){
             throw new Exception("No Data Found");
         }
@@ -39,49 +39,59 @@ private final QuestionServiceRepository questionServiceRepository;
 
     @Override
     @Transactional
-    public String createQuestoin(QuestionServiceEntity questionServiceEntity) throws Exception {
-        if(questionServiceEntity.getQuestion()==null || questionServiceEntity.getQuestion().isEmpty()){
-            throw new Exception("Question Can Not be null or empty");
-        }
-        if(questionServiceEntity.getOptionA()==null || questionServiceEntity.getOptionA().isEmpty()){
-            throw new Exception("option A Can Not be null or empty");
-        }
-        if(questionServiceEntity.getOptionB()==null || questionServiceEntity.getOptionB().isEmpty()){
-            throw new Exception("option B Can Not be null or empty");
-        }
-        if(questionServiceEntity.getOptionC()==null || questionServiceEntity.getOptionC().isEmpty()){
-            throw new Exception("option C Can Not be null or empty");
-        }
-        if(questionServiceEntity.getOptionD()==null || questionServiceEntity.getOptionD().isEmpty()){
-            throw new Exception("option D Can Not be null or empty");
-        }
-        if(questionServiceEntity.getCorrectAns()==null || questionServiceEntity.getCorrectAns().isEmpty()){
-            throw new Exception("Correct Answer Can Not be null or empty");
-        }
-        if(questionServiceEntity.getCategory()==null || questionServiceEntity.getCategory().isEmpty()){
-            throw new Exception("Catagory Can Not be null or empty");
-        }
-        if(questionServiceEntity.getDifficulty()==null || questionServiceEntity.getDifficulty().isEmpty()){
-            throw new Exception("Difficulty Can Not be null or empty");
-        }
-        try {
-            if(questionServiceEntity.getId() !=null){
-                if(questionServiceRepository.existsById(questionServiceEntity.getId())){
-                    QuestionServiceEntity questionServiceEntity1=questionServiceRepository.findById(questionServiceEntity.getId()).get();
-                    questionServiceEntity1.setCorrectAns(questionServiceEntity.getCorrectAns());
-                     return "Updated Successfully";
-                }
-                else{
-                    return "Not Updated Successfully";
-                }
+    public String createQuestoin(List<QuestionServiceEntity> questionServiceEnt) throws Exception {
+        for(QuestionServiceEntity questionServiceEntity:questionServiceEnt) {
+            if (questionServiceEntity.getQuestion() == null || questionServiceEntity.getQuestion().isEmpty()) {
+                throw new Exception("Question Can Not be null or empty");
             }
-            else {
-                questionServiceRepository.save(questionServiceEntity);
-                return "Created SussecFully";
+            if (questionServiceEntity.getOptionA() == null || questionServiceEntity.getOptionA().isEmpty()) {
+                throw new Exception("option A Can Not be null or empty");
             }
-        } catch (Exception e) {
-            throw new Exception("error msg:"+e.getMessage());
+            if (questionServiceEntity.getOptionB() == null || questionServiceEntity.getOptionB().isEmpty()) {
+                throw new Exception("option B Can Not be null or empty");
+            }
+            if (questionServiceEntity.getOptionC() == null || questionServiceEntity.getOptionC().isEmpty()) {
+                throw new Exception("option C Can Not be null or empty");
+            }
+            if (questionServiceEntity.getOptionD() == null || questionServiceEntity.getOptionD().isEmpty()) {
+                throw new Exception("option D Can Not be null or empty");
+            }
+            if (questionServiceEntity.getCorrectAns() == null || questionServiceEntity.getCorrectAns().isEmpty()) {
+                throw new Exception("Correct Answer Can Not be null or empty");
+            }
+            if (questionServiceEntity.getCategory() == null || questionServiceEntity.getCategory().isEmpty()) {
+                throw new Exception("Catagory Can Not be null or empty");
+            }
+            if (questionServiceEntity.getDifficulty() == null || questionServiceEntity.getDifficulty().isEmpty()) {
+                throw new Exception("Difficulty Can Not be null or empty");
+            }
+            try {
+                if (questionServiceEntity.getId() != null) {
+                    if (questionServiceRepository.existsById(questionServiceEntity.getId())) {
+                        QuestionServiceEntity questionServiceEntity1 = questionServiceRepository.findById(questionServiceEntity.getId()).get();
+                        questionServiceEntity1.setCorrectAns(questionServiceEntity.getCorrectAns());
+                        questionServiceEntity1.setQuestion(questionServiceEntity.getQuestion());
+                        questionServiceEntity1.setDifficulty(questionServiceEntity.getDifficulty());
+                        questionServiceEntity1.setCategory(questionServiceEntity.getCategory());
+                        return "Updated Successfully";
+                    } else {
+                        throw new Exception("Entity with id " + questionServiceEntity.getId() + " not found");
+                    }
+                } else {
+                   if(questionServiceRepository.existsByQuestion(questionServiceEntity.getQuestion())){
+                       throw new Exception("Question already exsits");
+
+                    }
+                   else {
+                       questionServiceRepository.save(questionServiceEntity);
+                   }
+
+                }
+            } catch (Exception e) {
+                throw new Exception("error msg:" + e.getMessage());
+            }
         }
+        return "Processed Successfully";
     }
 
     @Override

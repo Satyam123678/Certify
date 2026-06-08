@@ -56,7 +56,7 @@ export class QuizResult implements OnInit {
     }
 
     this.showConfetti = this.percent >= this.highScoreMark;
-    this.animatePercent();
+    this.displayPercent = this.percent;
   }
 
   retryQuiz(): void {
@@ -76,23 +76,4 @@ export class QuizResult implements OnInit {
     return category.trim().toLowerCase().replace(/\s+/g, '-');
   }
 
-  private animatePercent(): void {
-    const duration = 420;
-    const start = performance.now();
-    const startValue = 0;
-    const target = this.percent;
-
-    const tick = (now: number) => {
-      const elapsed = now - start;
-      const progress = Math.min(elapsed / duration, 1);
-      const eased = 1 - Math.pow(1 - progress, 3);
-      this.displayPercent = Math.round(startValue + (target - startValue) * eased);
-
-      if (progress < 1) {
-        requestAnimationFrame(tick);
-      }
-    };
-
-    requestAnimationFrame(tick);
-  }
 }

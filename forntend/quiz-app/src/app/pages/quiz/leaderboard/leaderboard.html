@@ -11,13 +11,19 @@
 				<h1 class="text-3xl font-bold tracking-tight mt-2">{{ categoryLabel }} top 5 scorers</h1>
 				<p class="text-gray-400 mt-2 max-w-xl">Certify highlights the strongest performers this week.</p>
 			</div>
-			<div class="flex items-center gap-3">
+			<div class="flex flex-wrap items-center gap-3">
 				<a
 					routerLink="/quizzes"
 					class="px-4 py-2 rounded-xl border border-gray-800 text-xs text-gray-300 hover:border-indigo-500 transition-colors">
 					Back to categories
 				</a>
 				<span class="px-4 py-2 rounded-full border border-gray-800 text-xs text-gray-400">{{ categoryLabel }} leaderboard</span>
+				<button
+					type="button"
+					class="px-4 py-2.5 rounded-xl border border-gray-800 text-xs text-gray-300 hover:border-indigo-500 transition-colors"
+					(click)="openQuestionDialog()">
+					Add multiple questions
+				</button>
 				<button class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-sm font-semibold transition-colors">Refresh</button>
 			</div>
 		</header>
@@ -72,6 +78,191 @@
 						</div>
 						<span class="text-sm font-semibold text-emerald-300">{{ scorer.score }}%</span>
 					</div>
+				</div>
+			</section>
+		</div>
+	</div>
+
+	<div
+		*ngIf="showQuestionDialog"
+		class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4 py-8"
+		role="dialog"
+		aria-modal="true"
+		aria-labelledby="question-dialog-title">
+		<div class="w-full max-w-5xl max-h-[90vh] overflow-y-auto rounded-2xl border border-gray-800 bg-gray-900 p-6 shadow-2xl">
+			<div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between mb-6">
+				<div>
+					<p class="text-xs uppercase tracking-[0.25em] text-gray-500">Admin question bank</p>
+					<h2 id="question-dialog-title" class="text-xl font-semibold mt-2">Add multiple questions</h2>
+					<p class="text-sm text-gray-400 mt-2">Add one or more questions for the selected category.</p>
+				</div>
+				<button
+					type="button"
+					class="px-3 py-2 rounded-xl border border-gray-800 text-xs text-gray-300 hover:border-indigo-500 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+					[disabled]="submittingQuestions"
+					(click)="closeQuestionDialog()">
+					Close
+				</button>
+			</div>
+
+			<form class="grid gap-5" [formGroup]="questionDialogForm" (ngSubmit)="submitQuestions()">
+				<div formArrayName="questions" class="grid gap-5">
+					<section
+						*ngFor="let questionGroup of questionRows.controls; let i = index"
+						class="rounded-2xl border border-gray-800 bg-gray-950 p-5"
+						[formGroupName]="i">
+						<div class="flex items-center justify-between gap-3 mb-4">
+							<h3 class="text-sm font-semibold text-gray-200">Question {{ i + 1 }}</h3>
+							<button
+								type="button"
+								class="px-3 py-2 rounded-xl border border-gray-800 text-xs text-gray-300 hover:border-rose-500 hover:text-rose-300 transition-colors"
+								(click)="removeQuestionRow(i)">
+								Remove
+							</button>
+						</div>
+
+						<div class="grid gap-4 lg:grid-cols-2">
+							<label class="grid gap-2 lg:col-span-2">
+								<span class="text-sm text-gray-300">Question</span>
+								<textarea formControlName="question" rows="3" class="w-full rounded-xl border border-gray-800 bg-gray-900 px-4 py-3 text-sm text-white outline-none focus:border-indigo-500" placeholder="Enter the question"></textarea>
+							</label>
+							<label class="grid gap-2">
+								<span class="text-sm text-gray-300">Option A</span>
+								<input formControlName="optionA" type="text" class="w-full rounded-xl border border-gray-800 bg-gray-900 px-4 py-3 text-sm text-white outline-none focus:border-indigo-500" placeholder="Option A" />
+							</label>
+							<label class="grid gap-2">
+								<span class="text-sm text-gray-300">Option B</span>
+								<input formControlName="optionB" type="text" class="w-full rounded-xl border border-gray-800 bg-gray-900 px-4 py-3 text-sm text-white outline-none focus:border-indigo-500" placeholder="Option B" />
+							</label>
+							<label class="grid gap-2">
+								<span class="text-sm text-gray-300">Option C</span>
+								<input formControlName="optionC" type="text" class="w-full rounded-xl border border-gray-800 bg-gray-900 px-4 py-3 text-sm text-white outline-none focus:border-indigo-500" placeholder="Option C" />
+							</label>
+							<label class="grid gap-2">
+								<span class="text-sm text-gray-300">Option D</span>
+								<input formControlName="optionD" type="text" class="w-full rounded-xl border border-gray-800 bg-gray-900 px-4 py-3 text-sm text-white outline-none focus:border-indigo-500" placeholder="Option D" />
+							</label>
+							<label class="grid gap-2">
+								<span class="text-sm text-gray-300">Correct answer</span>
+								<input formControlName="correctAns" type="text" class="w-full rounded-xl border border-gray-800 bg-gray-900 px-4 py-3 text-sm text-white outline-none focus:border-indigo-500" placeholder="Correct answer" />
+							</label>
+							<label class="grid gap-2">
+								<span class="text-sm text-gray-300">Difficulty</span>
+								<select formControlName="difficulty" class="w-full rounded-xl border border-gray-800 bg-gray-900 px-4 py-3 text-sm text-white outline-none focus:border-indigo-500">
+									<option value="">Select difficulty</option>
+									<option value="easy">Easy</option>
+									<option value="medium">Medium</option>
+									<option value="hard">Hard</option>
+								</select>
+							</label>
+							<label class="grid gap-2 lg:col-span-2">
+								<span class="text-sm text-gray-300">Category</span>
+								<input formControlName="category" type="text" class="w-full rounded-xl border border-gray-800 bg-gray-900 px-4 py-3 text-sm text-white outline-none focus:border-indigo-500" placeholder="Category name" />
+							</label>
+						</div>
+					</section>
+				</div>
+
+				<div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+					<button
+						type="button"
+						class="px-4 py-2.5 rounded-xl border border-gray-800 text-sm text-gray-300 hover:border-indigo-500 transition-colors"
+						(click)="addQuestionRow()">
+						Add another question
+					</button>
+					<div class="flex flex-wrap items-center justify-end gap-3">
+						<button
+							type="button"
+							class="px-4 py-2.5 rounded-xl border border-gray-800 text-sm text-gray-300 hover:border-indigo-500 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+							[disabled]="submittingQuestions"
+							(click)="closeQuestionDialog()">
+							Cancel
+						</button>
+						<button
+							type="submit"
+							class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-sm font-semibold transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+							[disabled]="submittingQuestions">
+							{{ submittingQuestions ? 'Saving...' : 'Save questions' }}
+						</button>
+					</div>
+				</div>
+			</form>
+
+			<section class="mt-8 rounded-2xl border border-gray-800 bg-gray-950 p-5">
+				<div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-5">
+					<div>
+						<p class="text-xs uppercase tracking-[0.25em] text-gray-500">All questions</p>
+						<h3 class="text-lg font-semibold mt-2">{{ categoryLabel }} question list</h3>
+					</div>
+					<button
+						type="button"
+						class="px-4 py-2 rounded-xl border border-gray-800 text-xs text-gray-300 hover:border-indigo-500 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+						[disabled]="loadingQuestions"
+						(click)="loadQuestionsForCurrentCategory()">
+						{{ loadingQuestions ? 'Loading...' : 'Refresh list' }}
+					</button>
+				</div>
+
+				<div *ngIf="loadingQuestions" class="text-sm text-gray-400">Loading questions...</div>
+
+				<div *ngIf="!loadingQuestions && questions.length" class="overflow-x-auto">
+					<table class="w-full min-w-[840px] text-sm">
+						<thead class="text-gray-500">
+							<tr>
+								<th class="text-left font-medium py-3 pr-4">Question</th>
+								<th class="text-left font-medium py-3 pr-4">Correct answer</th>
+								<th class="text-left font-medium py-3 pr-4">Difficulty</th>
+								<th class="text-left font-medium py-3">Action</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr class="border-t border-gray-800" *ngFor="let question of questions">
+								<td class="py-4 pr-4 text-gray-300">{{ question.question }}</td>
+								<td class="py-4 pr-4 text-gray-300">
+									<div *ngIf="editingAnswerQuestionId !== question.id">{{ question.correctAns }}</div>
+									<div *ngIf="editingAnswerQuestionId === question.id" class="flex items-center gap-2" [formGroup]="answerEditForm">
+										<input
+											formControlName="correctAns"
+											type="text"
+											class="w-full rounded-xl border border-gray-800 bg-gray-900 px-3 py-2 text-sm text-white outline-none focus:border-indigo-500"
+											placeholder="Correct answer" />
+									</div>
+								</td>
+								<td class="py-4 pr-4 text-gray-300">{{ question.difficulty }}</td>
+								<td class="py-4">
+									<div *ngIf="editingAnswerQuestionId !== question.id" class="flex items-center gap-2">
+										<button
+											type="button"
+											class="px-4 py-2 rounded-xl border border-indigo-500/40 text-xs text-indigo-300 hover:border-indigo-400 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+											[disabled]="!question.id"
+											(click)="startCorrectAnswerEdit(question)">
+											Edit
+										</button>
+									</div>
+									<div *ngIf="editingAnswerQuestionId === question.id" class="flex items-center gap-2">
+										<button
+											type="button"
+											class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-xs font-semibold transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+											[disabled]="savingCorrectAnswer"
+											(click)="saveCorrectAnswer(question)">
+											{{ savingCorrectAnswer ? 'Saving...' : 'Save' }}
+										</button>
+										<button
+											type="button"
+											class="px-4 py-2 rounded-xl border border-gray-800 text-xs text-gray-300 hover:border-indigo-500 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+											[disabled]="savingCorrectAnswer"
+											(click)="cancelCorrectAnswerEdit()">
+											Cancel
+										</button>
+									</div>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+
+				<div *ngIf="!loadingQuestions && !questions.length" class="text-sm text-gray-400">
+					No questions found for this category yet.
 				</div>
 			</section>
 		</div>

@@ -10,6 +10,13 @@ import java.util.List;
 public interface QuestionServiceRepository extends JpaRepository<QuestionServiceEntity,Integer> {
     List<QuestionServiceEntity> findByCategory(String catagory);
 
-    @Query(value = "select distinct e.category from questions e",nativeQuery = true)
+    @Query(value = """
+            SELECT e.category
+            FROM questions e
+            GROUP BY e.category
+            HAVING COUNT(*) > 9
+            """,nativeQuery = true)
     List<String> getCategories();
+
+    boolean existsByQuestion(String question);
 }

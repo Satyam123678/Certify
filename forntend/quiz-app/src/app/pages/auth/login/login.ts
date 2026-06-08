@@ -5,6 +5,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/service/auth-service';
 import { ToastService } from '../../../shared/components/toast/toast';
+import { API_BASE } from '../../../config';
 
 
 
@@ -51,7 +52,7 @@ export class Login {
       password:this.password.value
     }
  
-    this.http.post<any>('http://localhost:8088/api/auth/login', payload)
+    this.http.post<any>(`${API_BASE}/api/auth/login`, payload)
       .subscribe({
         next: (res) => {
           this.loading = false;
@@ -63,7 +64,7 @@ export class Login {
           }
           this.toastService.success(`Welcome back, ${res.name || 'learner'}!`);
           // Navigate to dashboard
-          if(res.role === 'ADMIN') {
+          if(res.role === 'Admin') {
             this.router.navigate(['/dashboard']);
           }
           else{

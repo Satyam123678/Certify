@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
+import { API_BASE } from '../../../config';
 
 @Component({
   selector: 'app-quiz-list',
@@ -16,8 +17,8 @@ export class QuizList implements OnInit {
   isLoadingCategory: string | null = null;
   errorMessage: string | null = null;
 
-  private readonly categoriesApiUrl = 'http://localhost:8088/api/question/get/categories';
-  private readonly quizApiUrl = 'http://localhost:8088/api/quiz/get-question/by-catagory-and-limit';
+  private readonly categoriesApiUrl = `${API_BASE}/api/question/get/categories`;
+  private readonly quizApiUrl = `${API_BASE}/api/quiz/get-question/by-catagory-and-limit`;
   private readonly questionLimit = 5;
   private readonly tones = [
     'from-indigo-500/20 to-indigo-500/0',

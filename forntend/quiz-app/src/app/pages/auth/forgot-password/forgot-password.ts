@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
+import { API_BASE } from '../../../config';
 
 @Component({
   selector: 'app-forgot-password',
@@ -44,7 +45,7 @@ export class ForgotPassword {
     const email = this.email.value as string;
 
     this.http.post(
-      `http://localhost:8088/api/auth/forget/password/otp?email=${encodeURIComponent(email)}`,
+      `${API_BASE}/api/auth/forget/password/otp?email=${encodeURIComponent(email)}`,
       {},
       { responseType: 'text' }
     )

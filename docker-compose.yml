@@ -96,10 +96,12 @@ services:
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: 713143
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      SPRING_RABBITMQ_HOST: rabbitmq
     depends_on:
       - postgres
       - eureka-server
       - question-service
+      - rabbitmq
     networks:
       - certify-network
 

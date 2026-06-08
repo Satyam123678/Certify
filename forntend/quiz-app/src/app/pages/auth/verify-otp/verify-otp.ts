@@ -4,6 +4,7 @@ import { Component, ElementRef, OnDestroy, OnInit, QueryList, ViewChildren } fro
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/service/auth-service';
+import { API_BASE } from '../../../config';
 
 @Component({
   selector: 'app-verify-otp',
@@ -119,7 +120,7 @@ export class VerifyOtp implements OnInit, OnDestroy {
     const otp = this.otp.join('');
 
     this.http.post<any>(
-      `http://localhost:8088/api/auth/verify-otp?email=${this.email}&otp=${otp}`,
+      `${API_BASE}/api/auth/verify-otp?email=${this.email}&otp=${otp}`,
       {}
     ).subscribe({
       next: (res) => {
@@ -158,7 +159,7 @@ export class VerifyOtp implements OnInit, OnDestroy {
     this.errorMessage = '';
 
     this.http.post(
-      `http://localhost:8088/api/auth/resend-otp?email=${this.email}`,
+      `${API_BASE}/api/auth/resend-otp?email=${this.email}`,
       {}
     ).subscribe({
       next: () => {

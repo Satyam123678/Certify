@@ -13,7 +13,8 @@ import lombok.NoArgsConstructor;
 public class QuestionServiceEntity {
     @Id
     @Column(name="id")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE,generator = "my_seq")
+    @SequenceGenerator(name = "my_seq",sequenceName = "my_seq",initialValue = 550,allocationSize = 1)
     private Integer id;
     @Column(name="question")
     private String question;
