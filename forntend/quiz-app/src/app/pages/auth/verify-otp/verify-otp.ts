@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, ElementRef, OnDestroy, OnInit, QueryList, ViewChildren } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, QueryList, ViewChildren } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/service/auth-service';
@@ -31,7 +31,8 @@ export class VerifyOtp implements OnInit, OnDestroy {
     private http: HttpClient,
     private router: Router,
     private route: ActivatedRoute,
-    private authService: AuthService
+    private authService: AuthService,
+    private readonly cdr: ChangeDetectorRef
   ) { }
 
   ngOnInit() {
@@ -57,7 +58,9 @@ export class VerifyOtp implements OnInit, OnDestroy {
       if (this.countdown === 0) {
         clearInterval(this.timer);
         this.canResend = true;
+        this.cdr.markForCheck();
       }
+      this.cdr.markForCheck();
     }, 1000);
   }
 
@@ -78,11 +81,11 @@ export class VerifyOtp implements OnInit, OnDestroy {
     const input = event.target as HTMLInputElement;
     if (event.key === 'Backspace') {
       if (input.value) {
-       
+
         this.otp[index] = '';
         input.value = '';
       } else if (index > 0) {
-       
+
         this.otp[index - 1] = '';
         const prev = this.inputs.toArray()[index - 1].nativeElement;
         prev.value = '';

@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { API_BASE } from '../../../config';
 import { ToastService } from '../../../shared/components/toast/toast';
@@ -63,7 +63,8 @@ export class QuizPlay implements OnInit, OnDestroy {
     private readonly http: HttpClient,
     private readonly router: Router,
     private readonly route: ActivatedRoute,
-    private readonly toastService: ToastService
+    private readonly toastService: ToastService,
+    private readonly cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -178,13 +179,17 @@ export class QuizPlay implements OnInit, OnDestroy {
   }
 
   private startTimer(): void {
+    this.clearTimer();
+
     this.timerId = setInterval(() => {
       if (this.remainingSeconds <= 1) {
         this.remainingSeconds = 0;
+        this.cdr.markForCheck();
         this.submitQuiz();
         return;
       }
       this.remainingSeconds -= 1;
+      this.cdr.markForCheck();
     }, 1000);
   }
 

@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, ElementRef, OnDestroy, OnInit, QueryList, ViewChildren } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, QueryList, ViewChildren } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { API_BASE } from '../../../config';
@@ -28,7 +28,8 @@ export class ForgotVerifyOtp implements OnInit, OnDestroy {
   constructor(
     private http: HttpClient,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private readonly cdr: ChangeDetectorRef
   ) { }
 
   ngOnInit() {
@@ -53,7 +54,9 @@ export class ForgotVerifyOtp implements OnInit, OnDestroy {
       if (this.countdown === 0) {
         clearInterval(this.timer);
         this.canResend = true;
+        this.cdr.markForCheck();
       }
+      this.cdr.markForCheck();
     }, 1000);
   }
 
